@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บันทึกข้อมูลการฟีดน้ำตาล Hopper LS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light grey background */
+            color: #334155; /* Darker grey for text */
+        }
+        .container-block {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            margin-bottom: 1.5rem;
+        }
+        .input-field {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #cbd5e1; /* border-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #f8fafc; /* bg-slate-50 */
+            transition: all 0.2s ease-in-out;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6; /* blue-500 */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* focus:ring-blue-500 */
+        }
+        .input-field[readonly] {
+            background-color: #e2e8f0; /* bg-slate-200 */
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background-color: #2563eb; /* blue-700 */
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600; /* font-semibold */
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8; /* blue-800 */
+        }
+        .text-blue-heading {
+            color: #0d6efd; /* A slightly deeper blue for emphasis */
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.25rem; /* text-xl */
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center text-blue-800 mb-8">ระบบบันทึกข้อมูลการฟีดน้ำตาล Hopper LS</h1>
+
+        <form id="hopperFeedForm" class="space-y-6">
+            <!-- ข้อมูลทั่วไป (General Information) -->
+            <div class="container-block">
+                <h2 class="text-blue-heading">ข้อมูลทั่วไป</h2>
+                <div class="mb-4">
+                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
+                    <input type="date" id="date" name="date" class="input-field" required>
+                </div>
+                <div class="mb-4">
+                    <label for="employeeName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อพนักงานที่บันทึกข้อมูล</label>
+                    <input type="text" id="employeeName" name="employeeName" list="employeeNamesList" class="input-field" placeholder="เลือกหรือพิมพ์ชื่อพนักงาน" required>
+                    <datalist id="employeeNamesList"></datalist>
+                </div>
+            </div>
+
+            <!-- ข้อมูลการ Feed (Feed Data) -->
+            <div class="container-block">
+                <h2 class="text-blue-heading">ข้อมูลการ Feed</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4 md:mb-0">
+                        <label for="preFeedA" class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขก่อนฟีด A (8 หลัก)</label>
+                        <input type="number" id="preFeedA" name="preFeedA" class="input-field" readonly min="0" max="99999999" placeholder="ดึงค่าอัตโนมัติ">
+                    </div>
+                    <div>
+                        <label for="preFeedB" class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขก่อนฟีด B (8 หลัก)</label>
+                        <input type="number" id="preFeedB" name="preFeedB" class="input-field" readonly min="0" max="99999999" placeholder="ดึงค่าอัตโนมัติ">
+                    </div>
+                    <div class="mb-4 md:mb-0">
+                        <label for="postFeedA" class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขหลังฟีด A (8 หลัก)</label>
+                        <input type="number" id="postFeedA" name="postFeedA" class="input-field" min="0" max="99999999" placeholder="กรอกตัวเลข 8 หลัก" required>
+                    </div>
+                    <div>
+                        <label for="postFeedB" class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขหลังฟีด B (8 หลัก)</label>
+                        <input type="number" id="postFeedB" name="postFeedB" class="input-field" min="0" max="99999999" placeholder="กรอกตัวเลข 8 หลัก" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ข้อมูลน้ำหนัก (Weight Data) -->
+            <div class="container-block">
+                <h2 class="text-blue-heading">ข้อมูลน้ำหนัก</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="mb-4 md:mb-0">
+                        <label for="quantityA" class="block text-sm font-medium text-gray-700 mb-1">จำนวน (Ton) A (อัตโนมัติ)</label>
+                        <input type="number" id="quantityA" name="quantityA" class="input-field" readonly>
+                    </div>
+                    <div class="mb-4 md:mb-0">
+                        <label for="quantityB" class="block text-sm font-medium text-gray-700 mb-1">จำนวน (Ton) B (อัตโนมัติ)</label>
+                        <input type="number" id="quantityB" name="quantityB" class="input-field" readonly>
+                    </div>
+                    <div>
+                        <label for="totalQuantity" class="block text-sm font-medium text-gray-700 mb-1">จำนวนรวม (อัตโนมัติ)</label>
+                        <input type="number" id="totalQuantity" name="totalQuantity" class="input-field" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ข้อมูล DCS (DCS Data) -->
+            <div class="container-block">
+                <h2 class="text-blue-heading">ข้อมูล DCS</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4 md:mb-0">
+                        <label for="dcsOrderTime" class="block text-sm font-medium text-gray-700 mb-1">DCS สั่งตัก (เวลา)</label>
+                        <input type="time" id="dcsOrderTime" name="dcsOrderTime" class="input-field" required>
+                    </div>
+                    <div>
+                        <label for="dcsStopTime" class="block text-sm font-medium text-gray-700 mb-1">DCS สั่งหยุด (เวลา)</label>
+                        <input type="time" id="dcsStopTime" name="dcsStopTime" class="input-field" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ข้อมูล Hopper (Hopper Data) -->
+            <div class="container-block">
+                <h2 class="text-blue-heading">ข้อมูล Hopper</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4 md:mb-0">
+                        <label for="hopperSugarA" class="block text-sm font-medium text-gray-700 mb-1">ปริมาณน้ำตาลคาถัง Hopper A (เต็มจำนวนหรือ 0)</label>
+                        <input type="number" id="hopperSugarA" name="hopperSugarA" class="input-field" min="0" max="99999999" placeholder="ใส่ค่า (ไม่เกิน 8 ตัว)" required>
+                    </div>
+                    <div>
+                        <label for="hopperSugarB" class="block text-sm font-medium text-gray-700 mb-1">ปริมาณน้ำตาลคาถัง Hopper B (เต็มจำนวนหรือ 0)</label>
+                        <input type="number" id="hopperSugarB" name="hopperSugarB" class="input-field" min="0" max="99999999" placeholder="ใส่ค่า (ไม่เกิน 8 ตัว)" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ข้อมูลพนักงาน Feed (Feed Employee Data) -->
+            <div class="container-block">
+                <h2 class="text-blue-heading">ข้อมูลพนักงาน Feed</h2>
+                <div class="mb-4">
+                    <label for="lsEmployee" class="block text-sm font-medium text-gray-700 mb-1">พนักงาน LS ด้านล่าง SILO</label>
+                    <input type="text" id="lsEmployee" name="lsEmployee" class="input-field" maxlength="50" placeholder="พิมพ์ - หากไม่มี" required>
+                </div>
+                <div class="mb-4">
+                    <label for="warehouseEmployee" class="block text-sm font-medium text-gray-700 mb-1">พนักงานคลังสินค้า ร่วมตรวจสอบ</label>
+                    <input type="text" id="warehouseEmployee" name="warehouseEmployee" list="employeeNamesList" class="input-field" placeholder="เลือกหรือพิมพ์ชื่อพนักงาน" required>
+                </div>
+            </div>
+
+            <!-- สถานะและหมายเหตุ (Status and Notes) -->
+            <div class="container-block">
+                <h2 class="text-blue-heading">สถานะและหมายเหตุ</h2>
+                <div class="mb-4">
+                    <label for="feedStatus" class="block text-sm font-medium text-gray-700 mb-1">การฟีดครั้งนี้</label>
+                    <select id="feedStatus" name="feedStatus" class="input-field" required>
+                        <option value="ปกติ">ปกติ</option>
+                        <option value="ไม่ปกติ">ไม่ปกติ</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ (สูงสุด 300 ตัวอักษร)</label>
+                    <textarea id="notes" name="notes" class="input-field h-24 resize-y" maxlength="300" placeholder="ใส่หมายเหตุ (ถ้ามี)"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="saveButton">บันทึกข้อมูล</button>
+
+            <!-- Message Box for user feedback -->
+            <div id="messageBox" class="hidden mt-4 p-4 rounded-lg text-center" role="alert"></div>
+            <div id="loadingIndicator" class="hidden mt-4 text-center text-blue-600 font-medium">กำลังบันทึกข้อมูล...</div>
+
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('hopperFeedForm');
+            const dateInput = document.getElementById('date');
+            const employeeNameInput = document.getElementById('employeeName');
+            const warehouseEmployeeInput = document.getElementById('warehouseEmployee');
+            const employeeNamesDatalist = document.getElementById('employeeNamesList');
+            const preFeedAInput = document.getElementById('preFeedA');
+            const preFeedBInput = document.getElementById('preFeedB');
+            const postFeedAInput = document.getElementById('postFeedA');
+            const postFeedBInput = document.getElementById('postFeedB');
+            const quantityAInput = document.getElementById('quantityA');
+            const quantityBInput = document.getElementById('quantityB');
+            const totalQuantityInput = document.getElementById('totalQuantity');
+            const dcsOrderTimeInput = document.getElementById('dcsOrderTime');
+            const dcsStopTimeInput = document.getElementById('dcsStopTime');
+            const saveButton = document.getElementById('saveButton');
+            const messageBox = document.getElementById('messageBox');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            // --- Configuration ---
+            // URL ของ Google Apps Script Web App ของคุณ
+            const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsVQEbYlJpQVkhp3hk28eshjkvrbDI3MfeQV2heilRFMhw4MsvKeiFq3Oxg7gLnTJk/exec'; 
+            const PREDEFINED_EMPLOYEES = [
+                'นายสุชาติ เหมือนฤทธิ์',
+                'นายดนัย แก้วฉนวน',
+                'นายสายัณห์ สีมันตะ',
+                'นางสาวนวพร เอี่ยมไพรบูลย์',
+                'นางกาญจนา วงษ์มณี'
+            ];
+            const LOCAL_STORAGE_KEY_EMPLOYEES = 'ktisHopperEmployees';
+            const LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC = 'ktisLastEmployeeRec';
+            const LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH = 'ktisLastEmployeeWH';
+
+
+            // --- Helper Functions ---
+
+            // Show message box
+            function showMessage(message, type = 'info') {
+                messageBox.textContent = message;
+                messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800');
+                if (type === 'success') {
+                    messageBox.classList.add('bg-green-100', 'text-green-800');
+                } else if (type === 'error') {
+                    messageBox.classList.add('bg-red-100', 'text-red-800');
+                } else {
+                    messageBox.classList.add('bg-blue-100', 'text-blue-800');
+                }
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                }, 5000); // Hide after 5 seconds
+            }
+
+            // Update datalist options
+            function updateDatalist(inputElement, localStorageKeyForLastValue) {
+                let storedEmployees = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EMPLOYEES)) || [];
+                const allEmployees = [...new Set([...PREDEFINED_EMPLOYEES, ...storedEmployees])]; // Combine and remove duplicates
+
+                employeeNamesDatalist.innerHTML = '';
+                allEmployees.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee;
+                    employeeNamesDatalist.appendChild(option);
+                });
+
+                // Set last used employee if available
+                const lastEmployee = localStorage.getItem(localStorageKeyForLastValue);
+                if (lastEmployee) {
+                    inputElement.value = lastEmployee;
+                }
+            }
+
+            // Save new employee to local storage
+            function saveEmployeeToLocalStorage(employeeName) {
+                if (!employeeName || PREDEFINED_EMPLOYEES.includes(employeeName)) {
+                    return; // Don't save predefined names or empty strings
+                }
+                let storedEmployees = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EMPLOYEES)) || [];
+                if (!storedEmployees.includes(employeeName)) {
+                    storedEmployees.push(employeeName);
+                    localStorage.setItem(LOCAL_STORAGE_KEY_EMPLOYEES, JSON.stringify(storedEmployees));
+                    // Re-update datalists for all employee fields
+                    updateDatalist(employeeNameInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC);
+                    updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH);
+                }
+            }
+
+            // Get current date in DD/MM/YYYY
+            function getFormattedDate(date) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+
+            // Get current time in HH:MM
+            function getFormattedTime(date) {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
+            }
+
+            // Calculate quantities
+            function calculateQuantities() {
+                const preA = parseFloat(preFeedAInput.value) || 0;
+                const postA = parseFloat(postFeedAInput.value) || 0;
+                const preB = parseFloat(preFeedBInput.value) || 0;
+                const postB = parseFloat(parseFloat(postFeedBInput.value)) || 0; // Ensure float parsing
+
+                let quantityA = 0;
+                if (postA >= preA) {
+                    quantityA = (postA - preA) / 1000;
+                } else {
+                    // Handle roll-over case: e.g., pre=99999990, post=10. Assuming counter rolls over after 99,999,999
+                    quantityA = ( (99999999 - preA) + postA + 1 ) / 1000;
+                }
+                
+                let quantityB = 0;
+                if (postB >= preB) {
+                    quantityB = (postB - preB) / 1000;
+                } else {
+                     quantityB = ( (99999999 - preB) + postB + 1 ) / 1000;
+                }
+
+                quantityAInput.value = quantityA.toFixed(3); // Display with 3 decimal places
+                quantityBInput.value = quantityB.toFixed(3); // Display with 3 decimal places
+                totalQuantityInput.value = (quantityA + quantityB).toFixed(3);
+            }
+
+            // --- Event Listeners and Initializations ---
+
+            // Set current date and time on load
+            const now = new Date();
+            dateInput.value = now.toISOString().split('T')[0]; //IFORNIA-MM-DD for input type="date"
+            dcsOrderTimeInput.value = getFormattedTime(now);
+            dcsStopTimeInput.value = getFormattedTime(now);
+
+            // Populate employee datalists
+            updateDatalist(employeeNameInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC);
+            updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH);
+
+
+            // Event listener for employee name input to save new names
+            employeeNameInput.addEventListener('change', () => {
+                saveEmployeeToLocalStorage(employeeNameInput.value.trim());
+                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC, employeeNameInput.value.trim());
+            });
+
+            warehouseEmployeeInput.addEventListener('change', () => {
+                saveEmployeeToLocalStorage(warehouseEmployeeInput.value.trim());
+                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH, warehouseEmployeeInput.value.trim());
+            });
+
+            // Calculate quantities on input changes for post-feed readings
+            postFeedAInput.addEventListener('input', calculateQuantities);
+            postFeedBInput.addEventListener('input', calculateQuantities);
+
+            // Fetch last readings on page load
+            async function fetchLastReadings() {
+                loadingIndicator.textContent = "กำลังดึงข้อมูลตัวเลขก่อนฟีด...";
+                loadingIndicator.classList.remove('hidden');
+                try {
+                    const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=get_last_readings`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    
+                    if (data.preFeedA !== undefined && data.preFeedA !== null) { // Added null check
+                        preFeedAInput.value = data.preFeedA;
+                    } else {
+                        preFeedAInput.value = '00000000'; // Default if no data or invalid data
+                    }
+
+                    if (data.preFeedB !== undefined && data.preFeedB !== null) { // Added null check
+                        preFeedBInput.value = data.preFeedB;
+                    } else {
+                        preFeedBInput.value = '00000000'; // Default if no data or invalid data
+                    }
+                    showMessage('ดึงข้อมูลตัวเลขก่อนฟีดสำเร็จแล้ว', 'success');
+                } catch (error) {
+                    console.error('Error fetching last readings:', error);
+                    preFeedAInput.value = '00000000'; // Default on error
+                    preFeedBInput.value = '00000000'; // Default on error
+                    showMessage('เกิดข้อผิดพลาดในการดึงข้อมูลตัวเลขก่อนฟีด: ' + error.message, 'error');
+                } finally {
+                    loadingIndicator.classList.add('hidden');
+                    calculateQuantities(); // Calculate initial quantities based on fetched/default pre-feed values
+                }
+            }
+            fetchLastReadings();
+
+            // Form submission handler
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                saveButton.disabled = true;
+                loadingIndicator.textContent = "กำลังบันทึกข้อมูล...";
+                loadingIndicator.classList.remove('hidden');
+                messageBox.classList.add('hidden'); // Hide any previous messages
+
+                const formData = {
+                    date: dateInput.value, //IFORNIA-MM-DD
+                    employeeName: employeeNameInput.value.trim(),
+                    preFeedA: preFeedAInput.value,
+                    preFeedB: preFeedBInput.value,
+                    postFeedA: postFeedAInput.value,
+                    postFeedB: postFeedBInput.value,
+                    quantityA: quantityAInput.value,
+                    quantityB: quantityBInput.value,
+                    totalQuantity: totalQuantityInput.value,
+                    dcsOrderTime: dcsOrderTimeInput.value,
+                    dcsStopTime: dcsStopTimeInput.value,
+                    hopperSugarA: document.getElementById('hopperSugarA').value,
+                    hopperSugarB: document.getElementById('hopperSugarB').value,
+                    lsEmployee: document.getElementById('lsEmployee').value.trim(),
+                    warehouseEmployee: warehouseEmployeeInput.value.trim(),
+                    feedStatus: document.getElementById('feedStatus').value,
+                    notes: document.getElementById('notes').value.trim()
+                };
+
+                try {
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', // Required for Google Apps Script Web App as endpoint
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded', // Apps Script expects this for e.parameter
+                        },
+                        // Encode data for Apps Script e.parameter
+                        body: new URLSearchParams(formData).toString()
+                    });
+
+                    // Due to 'no-cors' mode, response.ok will always be false, and we can't read response.json().
+                    // We rely on the Apps Script execution completing successfully.
+                    // A simple workaround for demonstration is to assume success if no immediate error.
+                    // For robust error handling, consider configuring CORS on Apps Script if possible, or
+                    // using a client-side proxy that handles CORS and forwards to Apps Script.
+                    // For this example, we'll assume success and refresh if no network error occurred.
+                    showMessage('บันทึกข้อมูลสำเร็จแล้ว!', 'success');
+                    form.reset(); // Clear form after successful submission
+                    
+                    // Reset auto-filled fields and refetch last readings for next entry
+                    const nowAfterSubmit = new Date();
+                    dateInput.value = nowAfterSubmit.toISOString().split('T')[0];
+                    dcsOrderTimeInput.value = getFormattedTime(nowAfterSubmit);
+                    dcsStopTimeInput.value = getFormattedTime(nowAfterSubmit);
+                    fetchLastReadings(); // Fetch new pre-feed values
+                    updateDatalist(employeeNameInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC); // Re-set last employee
+                    updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH); // Re-set last employee
+                    localStorage.setItem(LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC, employeeNameInput.value.trim()); // Persist last selected employee
+                    localStorage.setItem(LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH, warehouseEmployeeInput.value.trim()); // Persist last selected employee
+
+
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message + '. โปรดลองอีกครั้ง.', 'error');
+                } finally {
+                    saveButton.disabled = false;
+                    loadingIndicator.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
