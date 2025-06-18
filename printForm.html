@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>พิมพ์บันทึกการตักจ่ายน้ำตาลทรายดิบ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light grey background */
+            color: #334155; /* Darker grey for text */
+            padding: 1rem;
+        }
+        .container-block {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            margin-bottom: 1.5rem;
+            max-width: 800px; /* Constrain width for printability */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .input-field {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #cbd5e1; /* border-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #f8fafc; /* bg-slate-50 */
+        }
+        .input-field[readonly] {
+            background-color: #f8fafc; /* bg-slate-50 */
+            border: 1px solid #e2e8f0; /* lighter border for readonly */
+            cursor: default;
+        }
+        .btn-primary {
+            background-color: #2563eb; /* blue-700 */
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600; /* font-semibold */
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8; /* blue-800 */
+        }
+        .text-blue-heading {
+            color: #0d6efd; /* A slightly deeper blue for emphasis */
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.25rem; /* text-xl */
+        }
+        .form-section-header {
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid #bfdbfe; /* blue-200 */
+            padding-bottom: 0.25rem;
+        }
+        .field-label {
+            font-weight: 500;
+            color: #475569;
+        }
+        .field-value {
+            border-bottom: 1px dashed #cbd5e1;
+            padding-bottom: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+        /* Style for each record block when printed */
+        .record-block {
+            border: 1px dashed #e2e8f0; /* Light dashed border between entries */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        /* Remove border for the last record block */
+        .record-block:last-child {
+            border-bottom: none;
+        }
+
+        /* Print-specific styles */
+        @media print {
+            body {
+                background-color: #fff;
+                margin: 0;
+                padding: 0;
+            }
+            .container-block {
+                box-shadow: none;
+                /* border: 1px solid #000; Remove this, we add border per-block */
+                padding: 1rem;
+                margin: 0 auto;
+                max-width: 210mm; /* A4 width */
+                /* min-height: 297mm; */ /* A4 height - adjusted per block */
+            }
+            .no-print {
+                display: none !important;
+            }
+            .input-field, .field-value {
+                border: none;
+                border-bottom: 1px solid #000; /* Ensure lines for print */
+                background-color: #fff;
+                padding: 0;
+            }
+            .input-field[readonly] {
+                background-color: #fff;
+            }
+            h1, h2, p {
+                color: #000 !important;
+            }
+            .text-blue-heading {
+                border-color: #000 !important;
+            }
+            .record-block {
+                border: none; /* Remove dashed border for actual print */
+                page-break-inside: avoid; /* Prevent breaking inside a record block */
+                border-bottom: 1px solid #000; /* Add solid border for visual separation on print */
+                margin-bottom: 0.5rem; /* Adjust spacing for print */
+                padding-bottom: 0.5rem;
+            }
+            .record-block:last-child {
+                border-bottom: none; /* No border for the very last one */
+            }
+            #printableFormContent {
+                border: 1px solid #000; /* Add a single border around the entire printable area */
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center text-blue-800 mb-6 no-print">พิมพ์บันทึกการตักจ่ายน้ำตาลทรายดิบ</h1>
+
+        <div class="container-block no-print mb-4">
+            <h2 class="text-blue-heading">เลือกข้อมูลสำหรับพิมพ์</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mb-4">
+                    <label for="selectDate" class="block text-sm font-medium text-gray-700 mb-1">เลือกวัน/เดือน/ปี</label>
+                    <input type="date" id="selectDate" class="input-field" required>
+                </div>
+                <div class="mb-4">
+                    <label for="recordSelector" class="block text-sm font-medium text-gray-700 mb-1">เลือกรายการเริ่มต้น</label>
+                    <select id="recordSelector" class="input-field"></select>
+                </div>
+            </div>
+            <button id="loadRecordBtn" class="btn-primary">แสดงข้อมูล</button>
+        </div>
+
+        <div id="printableFormContent" class="container-block hidden">
+            <h1 class="text-2xl font-bold text-center text-blue-800 mb-2">บันทึกการตักจ่ายน้ำตาลทรายดิบให้โครงการ LS</h1>
+            <p class="text-center text-xs text-gray-500 mb-4">FM-WT-68 Rev.00 วันบังคับใช้ 1 มี.ค. 62 | หน้าที่/ทั้งหมด ......./.......</p>
+            
+            <div id="printRecordsContainer">
+                <!-- Record blocks will be dynamically injected here -->
+            </div>
+
+            <!-- Removed the global ผู้รับรอง section here as it's now per record -->
+            <!--
+            <div class="form-section-header">ผู้รับรอง</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                <div class="col-span-1">
+                    <span class="field-label">ผู้บันทึก:</span>
+                    <div class="field-value" id="printRecorderBottom"></div>
+                </div>
+                <div class="col-span-1">
+                    <span class="field-label">ผู้ตรวจสอบ:</span>
+                    <div class="field-value" id="printCheckerEmployee"></div>
+                </div>
+            </div>
+            -->
+
+            <div class="mt-8 no-print">
+                <button id="printBtn" class="btn-primary">พิมพ์หน้านี้</button>
+            </div>
+        </div>
+
+        <!-- Message Box for user feedback -->
+        <div id="messageBox" class="hidden mt-4 p-4 rounded-lg text-center" role="alert"></div>
+        <div id="loadingIndicator" class="hidden mt-4 text-center text-blue-600 font-medium">กำลังโหลดข้อมูล...</div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectDateInput = document.getElementById('selectDate');
+            const recordSelector = document.getElementById('recordSelector');
+            const loadRecordBtn = document.getElementById('loadRecordBtn');
+            const printableFormContent = document.getElementById('printableFormContent');
+            const printBtn = document.getElementById('printBtn');
+            const messageBox = document.getElementById('messageBox');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            // Container for dynamic record blocks
+            const printRecordsContainer = document.getElementById('printRecordsContainer');
+
+            // --- Configuration ---
+            // Ensure this URL is correct and your Apps Script is deployed as "Anyone"
+            const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsVQEbYlJpQVkhp3hk28eshjkvrbDI3MfeQV2heilRFMhw4MsvKeiFq3Oxg7gLnTJk/exec'; 
+            const RECORDS_PER_PAGE = 3; // Number of records to show per printout
+
+            let allRecordsForSelectedDate = []; // Store all records for the selected date
+
+            // --- Helper Functions ---
+            function showMessage(message, type = 'info') {
+                messageBox.textContent = message;
+                messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800');
+                if (type === 'success') {
+                    messageBox.classList.add('bg-green-100', 'text-green-800');
+                } else if (type === 'error') {
+                    messageBox.classList.add('bg-red-100', 'text-red-800');
+                } else {
+                    messageBox.classList.add('bg-blue-100', 'text-blue-800');
+                }
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                }, 5000); 
+            }
+
+            function getFormattedDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`; //YYYY-MM-DD
+            }
+
+            // Function to generate HTML for a single record block
+            function generateRecordBlockHTML(record, originalIndex) { // Renamed index to originalIndex for clarity
+                if (!record) return '';
+
+                return `
+                    <div class="record-block">
+                        <div class="text-lg font-semibold text-gray-800 mb-4">รายการที่ ${originalIndex + 1}</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                            <div class="col-span-1">
+                                <span class="field-label">วัน/เดือน/ปี:</span>
+                                <div class="field-value">${record.date}</div>
+                            </div>
+                            <!-- ผู้บันทึกถูกเอาออกตามคำขอในส่วน 'ข้อมูลการฟีดและทั่วไป' -->
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 mt-4">
+                            <div class="col-span-1">
+                                <span class="field-label">ตัวเลขก่อนฟีด A:</span>
+                                <div class="field-value">${String(record.preFeedA).padStart(8, '0')}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">ตัวเลขหลังฟีด A:</span>
+                                <div class="field-value">${String(record.postFeedA).padStart(8, '0')}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">ตัวเลขก่อนฟีด B:</span>
+                                <div class="field-value">${String(record.preFeedB).padStart(8, '0')}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">ตัวเลขหลังฟีด B:</span>
+                                <div class="field-value">${String(record.postFeedB).padStart(8, '0')}</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-4 mt-4">
+                            <div class="col-span-1">
+                                <span class="field-label">จำนวน (Ton) A:</span>
+                                <div class="field-value">${parseFloat(record.quantityA).toFixed(3)}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">จำนวน (Ton) B:</span>
+                                <div class="field-value">${parseFloat(record.quantityB).toFixed(3)}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">รวม (Ton):</span>
+                                <div class="field-value">${parseFloat(record.totalQuantity).toFixed(3)}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-section-header">ข้อมูล DCS และปริมาณน้ำตาลคาถัง</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                            <div class="col-span-1">
+                                <span class="field-label">DCS สั่งตัก (น.):</span>
+                                <div class="field-value">${record.dcsOrderTime || ''}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">DCS สั่งหยุด (น.):</span>
+                                <div class="field-value">${record.dcsStopTime || ''}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">มีน้ำตาลคาถัง Hopper A (Kg.):</span>
+                                <div class="field-value">${record.hopperSugarA || ''}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">มีน้ำตาลคาถัง Hopper B (Kg.):</span>
+                                <div class="field-value">${record.hopperSugarB || ''}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-section-header">ข้อมูลพนักงาน</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                            <div class="col-span-1">
+                                <span class="field-label">พนักงานคลังสินค้า ร่วมตรวจสอบ:</span>
+                                <div class="field-value">${record.warehouseEmployee || ''}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">พนักงาน LS ร่วมตรวจสอบ:</span>
+                                <div class="field-value">${record.lsEmployeeCheck || ''}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-section-header">สถานะและหมายเหตุ</div>
+                        <div class="grid grid-cols-1 gap-x-8">
+                            <div class="col-span-1">
+                                <span class="field-label">การฟีคครั้งนี้:</span>
+                                <div class="field-value">${record.feedStatus || ''}</div>
+                            </div>
+                            <div class-span-1>
+                                <span class="field-label">หมายเหตุ:</span>
+                                <div class="field-value" style="min-height: 50px;">${record.notes || ''}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-section-header">ผู้รับรอง</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                            <div class="col-span-1">
+                                <span class="field-label">ผู้บันทึก:</span>
+                                <div class="field-value">${record.recorderEmployee || ''}</div>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="field-label">ผู้ตรวจสอบ:</span>
+                                <div class="field-value">${record.checkerEmployee || ''}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Function to display multiple records for printing
+            function displayPrintableRecords(recordsToDisplay, startingIndex) {
+                printRecordsContainer.innerHTML = ''; // Clear previous content
+                // Removed clearing of printRecorderBottom and printCheckerEmployee here
+                // as they are now part of each record-block.
+
+                if (!recordsToDisplay || recordsToDisplay.length === 0) {
+                    printableFormContent.classList.add('hidden');
+                    showMessage('ไม่พบข้อมูลสำหรับวันที่และรายการที่เลือก', 'info');
+                    return;
+                }
+
+                printableFormContent.classList.remove('hidden');
+
+                // Determine the range of records to show
+                const startIndex = startingIndex;
+                const endIndex = Math.min(startIndex + RECORDS_PER_PAGE, recordsToDisplay.length);
+
+                for (let i = startIndex; i < endIndex; i++) {
+                    const record = recordsToDisplay[i];
+                    printRecordsContainer.innerHTML += generateRecordBlockHTML(record, i);
+                }
+
+                // The global `printRecorderBottom` and `printCheckerEmployee` are removed from HTML.
+                // The error was caused by trying to set textContent on non-existent elements.
+                // No need to set them here.
+            }
+
+
+            async function fetchAndDisplayRecord() {
+                const selectedDate = selectDateInput.value;
+                
+                if (!selectedDate) {
+                    showMessage('กรุณาเลือกวันที่ก่อน', 'error');
+                    return;
+                }
+
+                loadingIndicator.textContent = 'กำลังโหลดข้อมูล...';
+                loadingIndicator.classList.remove('hidden');
+                messageBox.classList.add('hidden');
+                printableFormContent.classList.add('hidden'); // ซ่อนฟอร์มเดิม
+
+                try {
+                    const params = new URLSearchParams({
+                        action: 'get_records_for_date', // This action is defined in your Apps Script
+                        targetDate: selectedDate
+                    });
+
+                    const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?${params.toString()}`);
+                    if (!response.ok) {
+                        const errorText = await response.text(); 
+                        console.error('HTTP Error details:', response.status, errorText);
+                        throw new Error(`HTTP error! status: ${response.status} - ${errorText.substring(0, 100)}...`);
+                    }
+                    const result = await response.json();
+                    
+                    recordSelector.innerHTML = ''; // Clear previous options
+                    allRecordsForSelectedDate = []; // Clear previous records
+
+                    if (result && result.records && Array.isArray(result.records) && result.records.length > 0) {
+                        allRecordsForSelectedDate = result.records;
+                        // Sort records by DCS Order Time before populating the selector
+                        allRecordsForSelectedDate.sort((a, b) => {
+                            const timeA = a.dcsOrderTime ? String(a.dcsOrderTime).split(':').map(Number) : [0, 0];
+                            const timeB = b.dcsOrderTime ? String(b.dcsOrderTime).split(':').map(Number) : [0, 0];
+                            if (timeA[0] !== timeB[0]) return timeA[0] - timeB[0];
+                            return timeA[1] - timeB[1];
+                        });
+
+                        allRecordsForSelectedDate.forEach((rec, index) => {
+                            const option = document.createElement('option');
+                            option.value = index;
+                            option.textContent = `รายการที่ ${index + 1} (${rec.dcsOrderTime ? String(rec.dcsOrderTime).substring(0, 5) : 'ไม่มีเวลา'})`; // Format time in dropdown
+                            recordSelector.appendChild(option);
+                        });
+                        
+                        // Select the last remembered index, or default to 0 if none/invalid
+                        let initialSelectedIndex = 0;
+                        if (recordSelector.dataset.lastSelectedIndex && parseInt(recordSelector.dataset.lastSelectedIndex) < allRecordsForSelectedDate.length) {
+                             initialSelectedIndex = parseInt(recordSelector.dataset.lastSelectedIndex);
+                        }
+                        recordSelector.value = initialSelectedIndex.toString();
+                        displayPrintableRecords(allRecordsForSelectedDate, initialSelectedIndex); // Display records based on selection
+                        showMessage('โหลดข้อมูลสำเร็จแล้ว!', 'success');
+                    } else {
+                        displayPrintableRecords(null); // Clear form if no data
+                        showMessage('ไม่พบข้อมูลสำหรับวันที่เลือก', 'info');
+                    }
+
+                } catch (error) {
+                    console.error('Error fetching record for print:', error);
+                    let errorMessage = 'เกิดข้อผิดพลาดในการโหลดข้อมูล: โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+                    if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+                        errorMessage += '. สาเหตุหลักมักมาจากการเปิดไฟล์ HTML โดยตรงจากคอมพิวเตอร์ของคุณ (URL ขึ้นต้นด้วย file:///)';
+                        errorMessage += ' โปรดเปิดผ่าน Web Server (เช่น Live Server ของ VS Code หรือ GitHub Pages)';
+                    } else if (error.message.includes('HTTP error!')) {
+                         errorMessage = 'เกิดข้อผิดพลาดจาก Google Apps Script: ' + error.message + '. โปรดตรวจสอบ Log ใน Apps Script Editor';
+                    }
+                    showMessage(errorMessage, 'error');
+                    displayPrintableRecords(null); // Clear form on error
+                } finally {
+                    loadingIndicator.classList.add('hidden');
+                }
+            }
+            
+            // Re-display when record selector changes
+            recordSelector.addEventListener('change', () => {
+                const newIndex = parseInt(recordSelector.value); // Convert to number
+                recordSelector.dataset.lastSelectedIndex = newIndex; // Store selected index
+                displayPrintableRecords(allRecordsForSelectedDate, newIndex);
+            });
+
+
+            // --- Initializations ---
+            const today = new Date();
+            selectDateInput.value = getFormattedDate(today); // Set default date to today
+
+            // Fetch data on initial load for today's date
+            fetchAndDisplayRecord();
+
+            // --- Event Listeners ---
+            loadRecordBtn.addEventListener('click', fetchAndDisplayRecord); // Keep this for manual load, although change event also triggers
+            selectDateInput.addEventListener('change', fetchAndDisplayRecord); // Fetch data when date changes
+            printBtn.addEventListener('click', () => {
+                window.print();
+            });
+        });
+    </script>
+</body>
+</html>
