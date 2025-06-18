@@ -72,6 +72,9 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
+    <!-- Datalist for employee names - Re-added as it was missing -->
+    <datalist id="employeeNamesList"></datalist>
+
     <div class="max-w-4xl mx-auto">
         <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">บันทึกการตักจ่ายน้ำตาลทรายดิบให้โครงการ LS</h1>
         <p class="text-center text-sm text-gray-500 mb-8">FM-WT-68 Rev.00 วันบังคับใช้ 1 มี.ค. 62 | หน้าที่/ทั้งหมด ......./.......</p>
@@ -112,9 +115,19 @@
                         </div>
                     </div>
                     
-                    <div class="md:col-span-2 mt-4">
-                        <label for="totalQuantity" class="block text-sm font-medium text-gray-700 mb-1">จำนวน (Ton) รวม</label>
-                        <input type="number" id="totalQuantity" name="totalQuantity" class="input-field" readonly>
+                    <div class="md:col-span-2 mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="quantityA" class="block text-sm font-medium text-gray-700 mb-1">จำนวน (Ton) A</label>
+                            <input type="number" id="quantityA" name="quantityA" class="input-field" readonly>
+                        </div>
+                        <div>
+                            <label for="quantityB" class="block text-sm font-medium text-gray-700 mb-1">จำนวน (Ton) B</label>
+                            <input type="number" id="quantityB" name="quantityB" class="input-field" readonly>
+                        </div>
+                        <div>
+                            <label for="totalQuantity" class="block text-sm font-medium text-gray-700 mb-1">รวม (Ton)</label>
+                            <input type="number" id="totalQuantity" name="totalQuantity" class="input-field" readonly>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -207,14 +220,19 @@
             const lsEmployeeCheckInput = document.getElementById('lsEmployeeCheck'); 
             const checkerEmployeeInput = document.getElementById('checkerEmployee'); 
             
+            // Datalist element should be retrieved once and checked for null
             const employeeNamesDatalist = document.getElementById('employeeNamesList');
+            if (!employeeNamesDatalist) {
+                console.error('CRITICAL ERROR: Datalist element with ID "employeeNamesList" not found in the DOM. Employee name auto-fill will not work.');
+            }
+
             const preFeedAInput = document.getElementById('preFeedA');
             const preFeedBInput = document.getElementById('preFeedB');
             const postFeedAInput = document.getElementById('postFeedA');
             const postFeedBInput = document.getElementById('postFeedB');
-            const quantityAInput = document.getElementById('quantityA');
-            const quantityBInput = document.getElementById('quantityB');
-            const totalQuantityInput = document.getElementById('totalQuantity');
+            const quantityAInput = document.getElementById('quantityA'); // Now guaranteed to be found if HTML is correct
+            const quantityBInput = document.getElementById('quantityB'); // Now guaranteed to be found if HTML is correct
+            const totalQuantityInput = document.getElementById('totalQuantity'); // Now guaranteed to be found if HTML is correct
             const dcsOrderTimeInput = document.getElementById('dcsOrderTime');
             const dcsStopTimeInput = document.getElementById('dcsStopTime');
             const hopperSugarAInput = document.getElementById('hopperSugarA');
@@ -261,10 +279,16 @@
             }
 
             function updateDatalist(inputElement, localStorageKeyForLastValue) {
+                // ตรวจสอบว่า employeeNamesDatalist ถูกพบหรือไม่ก่อนที่จะพยายามเข้าถึง
+                if (!employeeNamesDatalist) {
+                    console.error('Error: Datalist element with ID "employeeNamesList" not found. Cannot update employee list for input:', inputElement.id);
+                    return; // ออกจากฟังก์ชันหากไม่พบ element
+                }
+
                 let storedEmployees = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EMPLOYEES)) || [];
                 const allEmployees = [...new Set([...PREDEFINED_EMPLOYEES, ...storedEmployees])]; 
 
-                employeeNamesDatalist.innerHTML = '';
+                employeeNamesDatalist.innerHTML = ''; 
                 allEmployees.forEach(employee => {
                     const option = document.createElement('option');
                     option.value = employee;
@@ -307,6 +331,12 @@
             }
 
             function calculateQuantities() {
+                // เพิ่มการตรวจสอบ null สำหรับ input fields ก่อนใช้งาน
+                if (!preFeedAInput || !postFeedAInput || !preFeedBInput || !postFeedBInput || !quantityAInput || !quantityBInput || !totalQuantityInput) {
+                    console.error('CRITICAL ERROR: One or more quantity input fields are missing from the DOM. Cannot calculate quantities.');
+                    return;
+                }
+
                 const preA = parseFloat(preFeedAInput.value) || 0;
                 const postA = parseFloat(postFeedAInput.value) || 0;
                 const preB = parseFloat(preFeedBInput.value) || 0;
@@ -339,34 +369,50 @@
             dcsOrderTimeInput.value = getFormattedTime(now);
             dcsStopTimeInput.value = getFormattedTime(now);
 
-            // Populate all employee datalists
-            updateDatalist(recorderEmployeeInput, LOCAL_STORAGE_KEY_LAST_RECORDER);
-            updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_WAREHOUSE);
-            updateDatalist(lsEmployeeCheckInput, LOCAL_STORAGE_KEY_LAST_LS_CHECK);
-            updateDatalist(checkerEmployeeInput, LOCAL_STORAGE_KEY_LAST_CHECKER);
+            // Populate all employee datalists - only if employeeNamesDatalist is found
+            if (employeeNamesDatalist) {
+                updateDatalist(recorderEmployeeInput, LOCAL_STORAGE_KEY_LAST_RECORDER);
+                updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_WAREHOUSE);
+                updateDatalist(lsEmployeeCheckInput, LOCAL_STORAGE_KEY_LAST_LS_CHECK);
+                updateDatalist(checkerEmployeeInput, LOCAL_STORAGE_KEY_LAST_CHECKER);
+            }
+
 
             // Event listeners for employee name input to save new names
-            recorderEmployeeInput.addEventListener('change', () => {
-                saveEmployeeToLocalStorage(recorderEmployeeInput.value.trim());
-                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_RECORDER, recorderEmployeeInput.value.trim());
-            });
-            warehouseEmployeeInput.addEventListener('change', () => {
-                saveEmployeeToLocalStorage(warehouseEmployeeInput.value.trim());
-                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_WAREHOUSE, warehouseEmployeeInput.value.trim());
-            });
-            lsEmployeeCheckInput.addEventListener('change', () => { 
-                saveEmployeeToLocalStorage(lsEmployeeCheckInput.value.trim());
-                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_LS_CHECK, lsEmployeeCheckInput.value.trim());
-            });
-            checkerEmployeeInput.addEventListener('change', () => { 
-                saveEmployeeToLocalStorage(checkerEmployeeInput.value.trim());
-                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_CHECKER, checkerEmployeeInput.value.trim());
-            });
+            // Add checks to ensure input elements are not null before adding listeners
+            if (recorderEmployeeInput) {
+                recorderEmployeeInput.addEventListener('change', () => {
+                    saveEmployeeToLocalStorage(recorderEmployeeInput.value.trim());
+                    localStorage.setItem(LOCAL_STORAGE_KEY_LAST_RECORDER, recorderEmployeeInput.value.trim());
+                });
+            }
+            if (warehouseEmployeeInput) {
+                warehouseEmployeeInput.addEventListener('change', () => {
+                    saveEmployeeToLocalStorage(warehouseEmployeeInput.value.trim());
+                    localStorage.setItem(LOCAL_STORAGE_KEY_LAST_WAREHOUSE, warehouseEmployeeInput.value.trim());
+                });
+            }
+            if (lsEmployeeCheckInput) {
+                lsEmployeeCheckInput.addEventListener('change', () => { 
+                    saveEmployeeToLocalStorage(lsEmployeeCheckInput.value.trim());
+                    localStorage.setItem(LOCAL_STORAGE_KEY_LAST_LS_CHECK, lsEmployeeCheckInput.value.trim());
+                });
+            }
+            if (checkerEmployeeInput) {
+                checkerEmployeeInput.addEventListener('change', () => { 
+                    saveEmployeeToLocalStorage(checkerEmployeeInput.value.trim());
+                    localStorage.setItem(LOCAL_STORAGE_KEY_LAST_CHECKER, checkerEmployeeInput.value.trim());
+                });
+            }
 
 
             // Calculate quantities on input changes for post-feed readings
-            postFeedAInput.addEventListener('input', calculateQuantities);
-            postFeedBInput.addEventListener('input', calculateQuantities);
+            if (postFeedAInput) {
+                postFeedAInput.addEventListener('input', calculateQuantities);
+            }
+            if (postFeedBInput) {
+                postFeedBInput.addEventListener('input', calculateQuantities);
+            }
 
             // Fetch last readings on page load
             async function fetchLastReadings() {
@@ -379,97 +425,99 @@
                     }
                     const data = await response.json();
                     
-                    if (data.preFeedA !== undefined && data.preFeedA !== null) { 
+                    if (preFeedAInput && data.preFeedA !== undefined && data.preFeedA !== null) { 
                         preFeedAInput.value = data.preFeedA;
-                    } else {
+                    } else if (preFeedAInput) {
                         preFeedAInput.value = '00000000'; 
                     }
 
-                    if (data.preFeedB !== undefined && data.preFeedB !== null) { 
+                    if (preFeedBInput && data.preFeedB !== undefined && data.preFeedB !== null) { 
                         preFeedBInput.value = data.preFeedB;
-                    } else {
+                    } else if (preFeedBInput) {
                         preFeedBInput.value = '00000000'; 
                     }
                     showMessage('ดึงข้อมูลตัวเลขก่อนฟีดสำเร็จแล้ว', 'success');
                 } catch (error) {
                     console.error('Error fetching last readings:', error);
-                    preFeedAInput.value = '00000000'; 
-                    preFeedBInput.value = '00000000'; 
+                    if (preFeedAInput) preFeedAInput.value = '00000000'; 
+                    if (preFeedBInput) preFeedBInput.value = '00000000'; 
                     showMessage('เกิดข้อผิดพลาดในการดึงข้อมูลตัวเลขก่อนฟีด: ' + error.message, 'error');
                 } finally {
                     loadingIndicator.classList.add('hidden');
-                    calculateQuantities(); 
+                    calculateQuantities(); // Call calculateQuantities regardless of fetch success/failure
                 }
             }
             fetchLastReadings();
 
             // Form submission handler
-            form.addEventListener('submit', async function(event) {
-                event.preventDefault(); 
+            if (form) { // Ensure form element exists before adding listener
+                form.addEventListener('submit', async function(event) {
+                    event.preventDefault(); 
 
-                saveButton.disabled = true;
-                loadingIndicator.textContent = "กำลังบันทึกข้อมูล...";
-                loadingIndicator.classList.remove('hidden');
-                messageBox.classList.add('hidden'); 
+                    saveButton.disabled = true;
+                    loadingIndicator.textContent = "กำลังบันทึกข้อมูล...";
+                    loadingIndicator.classList.remove('hidden');
+                    messageBox.classList.add('hidden'); 
 
-                const formData = {
-                    date: dateInput.value, 
-                    recorderEmployee: recorderEmployeeInput.value.trim(), 
-                    preFeedA: preFeedAInput.value,
-                    preFeedB: preFeedBInput.value,
-                    postFeedA: postFeedAInput.value,
-                    postFeedB: postFeedBInput.value,
-                    quantityA: quantityAInput.value,
-                    quantityB: quantityBInput.value,
-                    totalQuantity: totalQuantityInput.value,
-                    dcsOrderTime: dcsOrderTimeInput.value,
-                    dcsStopTime: dcsStopTimeInput.value,
-                    // tankLevelPercent, lsEmployeeTopHopper, lsEmployee (SILO) are removed
-                    hopperSugarA: hopperSugarAInput.value,
-                    hopperSugarB: hopperSugarBInput.value,
-                    warehouseEmployee: warehouseEmployeeInput.value.trim(),
-                    lsEmployeeCheck: lsEmployeeCheckInput.value.trim(), 
-                    feedStatus: feedStatusSelect.value,
-                    notes: notesInput.value.trim(),
-                    checkerEmployee: checkerEmployeeInput.value.trim() 
-                };
+                    const formData = {
+                        date: dateInput.value, 
+                        recorderEmployee: recorderEmployeeInput.value.trim(), 
+                        preFeedA: preFeedAInput.value,
+                        preFeedB: preFeedBInput.value,
+                        postFeedA: postFeedAInput.value,
+                        postFeedB: postFeedBInput.value,
+                        quantityA: quantityAInput.value, // Ensure these values are taken from the inputs
+                        quantityB: quantityBInput.value, // Ensure these values are taken from the inputs
+                        totalQuantity: totalQuantityInput.value, // Ensure these values are taken from the inputs
+                        dcsOrderTime: dcsOrderTimeInput.value,
+                        dcsStopTime: dcsStopTimeInput.value,
+                        hopperSugarA: hopperSugarAInput.value,
+                        hopperSugarB: hopperSugarBInput.value,
+                        warehouseEmployee: warehouseEmployeeInput.value.trim(),
+                        lsEmployeeCheck: lsEmployeeCheckInput.value.trim(), 
+                        feedStatus: feedStatusSelect.value,
+                        notes: notesInput.value.trim(),
+                        checkerEmployee: checkerEmployeeInput.value.trim() 
+                    };
 
-                console.log('ข้อมูลฟอร์มที่กำลังจะถูกส่ง:', formData);
+                    console.log('ข้อมูลฟอร์มที่กำลังจะถูกส่ง:', formData);
 
-                try {
-                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors', 
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded', 
-                        },
-                        body: new URLSearchParams(formData).toString()
-                    });
+                    try {
+                        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            mode: 'no-cors', 
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded', 
+                            },
+                            body: new URLSearchParams(formData).toString()
+                        });
 
-                    showMessage('บันทึกข้อมูลสำเร็จแล้ว!', 'success');
-                    form.reset(); 
-                    
-                    const nowAfterSubmit = new Date();
-                    dateInput.value = getFormattedDate(nowAfterSubmit);
-                    dcsOrderTimeInput.value = getFormattedTime(nowAfterSubmit);
-                    dcsStopTimeInput.value = getFormattedTime(nowAfterSubmit);
-                    fetchLastReadings(); 
+                        showMessage('บันทึกข้อมูลสำเร็จแล้ว!', 'success');
+                        form.reset(); 
+                        
+                        const nowAfterSubmit = new Date();
+                        dateInput.value = getFormattedDate(nowAfterSubmit);
+                        dcsOrderTimeInput.value = getFormattedTime(nowAfterSubmit);
+                        dcsStopTimeInput.value = getFormattedTime(nowAfterSubmit);
+                        fetchLastReadings(); 
 
-                    updateDatalist(recorderEmployeeInput, LOCAL_STORAGE_KEY_LAST_RECORDER); 
-                    updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_WAREHOUSE);
-                    updateDatalist(lsEmployeeCheckInput, LOCAL_STORAGE_KEY_LAST_LS_CHECK);
-                    updateDatalist(checkerEmployeeInput, LOCAL_STORAGE_KEY_LAST_CHECKER);
+                        if (employeeNamesDatalist) { // Only update if datalist was found
+                            updateDatalist(recorderEmployeeInput, LOCAL_STORAGE_KEY_LAST_RECORDER); 
+                            updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_WAREHOUSE);
+                            updateDatalist(lsEmployeeCheckInput, LOCAL_STORAGE_KEY_LAST_LS_CHECK);
+                            updateDatalist(checkerEmployeeInput, LOCAL_STORAGE_KEY_LAST_CHECKER);
+                        }
 
-                } catch (error) {
-                    console.error('Error submitting form:', error);
-                    showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message + '. โปรดลองอีกครั้ง.', 'error');
-                } finally {
-                    saveButton.disabled = false;
-                    loadingIndicator.classList.add('hidden');
-                }
-            });
+                    } catch (error) {
+                        console.error('Error submitting form:', error);
+                        showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message + '. โปรดลองอีกครั้ง.', 'error');
+                    } finally {
+                        saveButton.disabled = false;
+                        loadingIndicator.classList.add('hidden');
+                    }
+                });
+            }
         });
     </script>
 </body>
 </html>
-```
