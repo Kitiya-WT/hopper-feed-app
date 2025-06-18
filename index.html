@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกข้อมูลการฟีดน้ำตาล Hopper LS</title>
+    <title>บันทึกการตักจ่ายน้ำตาลทรายดิบ</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -57,125 +57,135 @@
             margin-bottom: 1rem;
             font-size: 1.25rem; /* text-xl */
         }
+        .grid-col-2-label-input {
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Adjust ratio as needed */
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .grid-col-3-label-input {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr; /* Label, Input, Unit */
+            gap: 0.5rem;
+            align-items: center;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold text-center text-blue-800 mb-8">ระบบบันทึกข้อมูลการฟีดน้ำตาล Hopper LS</h1>
+        <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">บันทึกการตักจ่ายน้ำตาลทรายดิบให้โครงการ LS</h1>
+        <p class="text-center text-sm text-gray-500 mb-8">FM-WT-68 Rev.00 วันบังคับใช้ 1 มี.ค. 62 | หน้าที่/ทั้งหมด ......./.......</p>
 
         <form id="hopperFeedForm" class="space-y-6">
-            <!-- ข้อมูลทั่วไป (General Information) -->
+            <!-- วัน/เดือน/ปี และ ข้อมูลการ Feed หลัก -->
             <div class="container-block">
-                <h2 class="text-blue-heading">ข้อมูลทั่วไป</h2>
-                <div class="mb-4">
-                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
-                    <input type="date" id="date" name="date" class="input-field" required>
-                </div>
-                <div class="mb-4">
-                    <label for="employeeName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อพนักงานที่บันทึกข้อมูล</label>
-                    <input type="text" id="employeeName" name="employeeName" list="employeeNamesList" class="input-field" placeholder="เลือกหรือพิมพ์ชื่อพนักงาน" required>
-                    <datalist id="employeeNamesList"></datalist>
-                </div>
-            </div>
-
-            <!-- ข้อมูลการ Feed (Feed Data) -->
-            <div class="container-block">
-                <h2 class="text-blue-heading">ข้อมูลการ Feed</h2>
+                <h2 class="text-blue-heading">ข้อมูลการฟีดและทั่วไป</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="mb-4 md:mb-0">
-                        <label for="preFeedA" class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขก่อนฟีด A (8 หลัก)</label>
-                        <input type="number" id="preFeedA" name="preFeedA" class="input-field" readonly min="0" max="99999999" placeholder="ดึงค่าอัตโนมัติ">
+                    <div class="mb-4">
+                        <label for="date" class="block text-sm font-medium text-gray-700 mb-1">วัน/เดือน/ปี</label>
+                        <input type="date" id="date" name="date" class="input-field" required>
                     </div>
-                    <div>
-                        <label for="preFeedB" class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขก่อนฟีด B (8 หลัก)</label>
-                        <input type="number" id="preFeedB" name="preFeedB" class="input-field" readonly min="0" max="99999999" placeholder="ดึงค่าอัตโนมัติ">
-                    </div>
-                    <div class="mb-4 md:mb-0">
-                        <label for="postFeedA" class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขหลังฟีด A (8 หลัก)</label>
-                        <input type="number" id="postFeedA" name="postFeedA" class="input-field" min="0" max="99999999" placeholder="กรอกตัวเลข 8 หลัก" required>
-                    </div>
-                    <div>
-                        <label for="postFeedB" class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขหลังฟีด B (8 หลัก)</label>
-                        <input type="number" id="postFeedB" name="postFeedB" class="input-field" min="0" max="99999999" placeholder="กรอกตัวเลข 8 หลัก" required>
-                    </div>
-                </div>
-            </div>
+                    <div></div> <!-- Placeholder for layout -->
 
-            <!-- ข้อมูลน้ำหนัก (Weight Data) -->
-            <div class="container-block">
-                <h2 class="text-blue-heading">ข้อมูลน้ำหนัก</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="mb-4 md:mb-0">
-                        <label for="quantityA" class="block text-sm font-medium text-gray-700 mb-1">จำนวน (Ton) A (อัตโนมัติ)</label>
-                        <input type="number" id="quantityA" name="quantityA" class="input-field" readonly>
+                    <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขก่อนฟีด</label>
+                            <div class="flex items-center mb-2">
+                                <span class="w-1/4 text-right pr-2">A :</span>
+                                <input type="number" id="preFeedA" name="preFeedA" class="input-field w-3/4" readonly min="0" max="99999999" placeholder="ดึงค่าอัตโนมัติ">
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-1/4 text-right pr-2">B :</span>
+                                <input type="number" id="preFeedB" name="preFeedB" class="input-field w-3/4" readonly min="0" max="99999999" placeholder="ดึงค่าอัตโนมัติ">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ตัวเลขหลังฟีด</label>
+                            <div class="flex items-center mb-2">
+                                <span class="w-1/4 text-right pr-2">A :</span>
+                                <input type="number" id="postFeedA" name="postFeedA" class="input-field w-3/4" min="0" max="99999999" placeholder="กรอกตัวเลข 8 หลัก" required>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-1/4 text-right pr-2">B :</span>
+                                <input type="number" id="postFeedB" name="postFeedB" class="input-field w-3/4" min="0" max="99999999" placeholder="กรอกตัวเลข 8 หลัก" required>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-4 md:mb-0">
-                        <label for="quantityB" class="block text-sm font-medium text-gray-700 mb-1">จำนวน (Ton) B (อัตโนมัติ)</label>
-                        <input type="number" id="quantityB" name="quantityB" class="input-field" readonly>
-                    </div>
-                    <div>
-                        <label for="totalQuantity" class="block text-sm font-medium text-gray-700 mb-1">จำนวนรวม (อัตโนมัติ)</label>
+                    
+                    <div class="md:col-span-2 mt-4">
+                        <label for="totalQuantity" class="block text-sm font-medium text-gray-700 mb-1">จำนวน (Ton) รวม</label>
                         <input type="number" id="totalQuantity" name="totalQuantity" class="input-field" readonly>
                     </div>
                 </div>
             </div>
 
-            <!-- ข้อมูล DCS (DCS Data) -->
+            <!-- ข้อมูล DCS และ ปริมาณน้ำตาลคาถัง -->
             <div class="container-block">
-                <h2 class="text-blue-heading">ข้อมูล DCS</h2>
+                <h2 class="text-blue-heading">ข้อมูล DCS และปริมาณน้ำตาลคาถัง</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="mb-4 md:mb-0">
-                        <label for="dcsOrderTime" class="block text-sm font-medium text-gray-700 mb-1">DCS สั่งตัก (เวลา)</label>
+                    <div class="mb-4">
+                        <label for="dcsOrderTime" class="block text-sm font-medium text-gray-700 mb-1">DCS สั่งตัก (น.)</label>
                         <input type="time" id="dcsOrderTime" name="dcsOrderTime" class="input-field" required>
                     </div>
-                    <div>
-                        <label for="dcsStopTime" class="block text-sm font-medium text-gray-700 mb-1">DCS สั่งหยุด (เวลา)</label>
+                    <div class="mb-4">
+                        <label for="dcsStopTime" class="block text-sm font-medium text-gray-700 mb-1">DCS สั่งหยุด (น.)</label>
                         <input type="time" id="dcsStopTime" name="dcsStopTime" class="input-field" required>
                     </div>
-                </div>
-            </div>
-
-            <!-- ข้อมูล Hopper (Hopper Data) -->
-            <div class="container-block">
-                <h2 class="text-blue-heading">ข้อมูล Hopper</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="mb-4 md:mb-0">
-                        <label for="hopperSugarA" class="block text-sm font-medium text-gray-700 mb-1">ปริมาณน้ำตาลคาถัง Hopper A (เต็มจำนวนหรือ 0)</label>
+                    <div class="mb-4">
+                        <label for="hopperSugarA" class="block text-sm font-medium text-gray-700 mb-1">มีน้ำตาลคาถัง Hopper A (Kg.)</label>
                         <input type="number" id="hopperSugarA" name="hopperSugarA" class="input-field" min="0" max="99999999" placeholder="ใส่ค่า (ไม่เกิน 8 ตัว)" required>
                     </div>
-                    <div>
-                        <label for="hopperSugarB" class="block text-sm font-medium text-gray-700 mb-1">ปริมาณน้ำตาลคาถัง Hopper B (เต็มจำนวนหรือ 0)</label>
+                    <div class="mb-4">
+                        <label for="hopperSugarB" class="block text-sm font-medium text-gray-700 mb-1">มีน้ำตาลคาถัง Hopper B (Kg.)</label>
                         <input type="number" id="hopperSugarB" name="hopperSugarB" class="input-field" min="0" max="99999999" placeholder="ใส่ค่า (ไม่เกิน 8 ตัว)" required>
                     </div>
                 </div>
             </div>
 
-            <!-- ข้อมูลพนักงาน Feed (Feed Employee Data) -->
+            <!-- ข้อมูลพนักงาน -->
             <div class="container-block">
-                <h2 class="text-blue-heading">ข้อมูลพนักงาน Feed</h2>
-                <div class="mb-4">
-                    <label for="lsEmployee" class="block text-sm font-medium text-gray-700 mb-1">พนักงาน LS ด้านล่าง SILO</label>
-                    <input type="text" id="lsEmployee" name="lsEmployee" class="input-field" maxlength="50" placeholder="พิมพ์ - หากไม่มี" required>
-                </div>
+                <h2 class="text-blue-heading">ข้อมูลพนักงาน</h2>
                 <div class="mb-4">
                     <label for="warehouseEmployee" class="block text-sm font-medium text-gray-700 mb-1">พนักงานคลังสินค้า ร่วมตรวจสอบ</label>
                     <input type="text" id="warehouseEmployee" name="warehouseEmployee" list="employeeNamesList" class="input-field" placeholder="เลือกหรือพิมพ์ชื่อพนักงาน" required>
                 </div>
+                <div class="mb-4">
+                    <label for="lsEmployeeCheck" class="block text-sm font-medium text-gray-700 mb-1">พนักงาน LS ร่วมตรวจสอบ</label>
+                    <input type="text" id="lsEmployeeCheck" name="lsEmployeeCheck" list="employeeNamesList" class="input-field" placeholder="เลือกหรือพิมพ์ชื่อพนักงาน" required>
+                </div>
             </div>
 
-            <!-- สถานะและหมายเหตุ (Status and Notes) -->
+            <!-- สถานะและหมายเหตุ -->
             <div class="container-block">
                 <h2 class="text-blue-heading">สถานะและหมายเหตุ</h2>
-                <div class="mb-4">
-                    <label for="feedStatus" class="block text-sm font-medium text-gray-700 mb-1">การฟีดครั้งนี้</label>
-                    <select id="feedStatus" name="feedStatus" class="input-field" required>
-                        <option value="ปกติ">ปกติ</option>
-                        <option value="ไม่ปกติ">ไม่ปกติ</option>
-                    </select>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                        <label for="feedStatus" class="block text-sm font-medium text-gray-700 mb-1">การฟีคครั้งนี้</label>
+                        <select id="feedStatus" name="feedStatus" class="input-field" required>
+                            <option value="ปกติ">ปกติ</option>
+                            <option value="ไม่ปกติ">ไม่ปกติ</option>
+                        </select>
+                    </div>
+                    <div></div> <!-- Placeholder for layout -->
+                    <div class="md:col-span-2 mb-4">
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                        <textarea id="notes" name="notes" class="input-field h-24 resize-y" maxlength="300" placeholder="ใส่หมายเหตุ (สูงสุด 300 ตัวอักษร)"></textarea>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ (สูงสุด 300 ตัวอักษร)</label>
-                    <textarea id="notes" name="notes" class="input-field h-24 resize-y" maxlength="300" placeholder="ใส่หมายเหตุ (ถ้ามี)"></textarea>
+            </div>
+
+            <!-- ผู้บันทึกและผู้ตรวจสอบ -->
+            <div class="container-block">
+                <h2 class="text-blue-heading">ผู้รับรอง</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                        <label for="recorderEmployee" class="block text-sm font-medium text-gray-700 mb-1">ผู้บันทึก</label>
+                        <input type="text" id="recorderEmployee" name="recorderEmployee" list="employeeNamesList" class="input-field" placeholder="เลือกหรือพิมพ์ชื่อพนักงาน" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="checkerEmployee" class="block text-sm font-medium text-gray-700 mb-1">ผู้ตรวจสอบ</label>
+                        <input type="text" id="checkerEmployee" name="checkerEmployee" list="employeeNamesList" class="input-field" placeholder="เลือกหรือพิมพ์ชื่อพนักงาน" required>
+                    </div>
                 </div>
             </div>
 
@@ -192,8 +202,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('hopperFeedForm');
             const dateInput = document.getElementById('date');
-            const employeeNameInput = document.getElementById('employeeName');
+            const recorderEmployeeInput = document.getElementById('recorderEmployee'); 
             const warehouseEmployeeInput = document.getElementById('warehouseEmployee');
+            const lsEmployeeCheckInput = document.getElementById('lsEmployeeCheck'); 
+            const checkerEmployeeInput = document.getElementById('checkerEmployee'); 
+            
             const employeeNamesDatalist = document.getElementById('employeeNamesList');
             const preFeedAInput = document.getElementById('preFeedA');
             const preFeedBInput = document.getElementById('preFeedB');
@@ -204,12 +217,16 @@
             const totalQuantityInput = document.getElementById('totalQuantity');
             const dcsOrderTimeInput = document.getElementById('dcsOrderTime');
             const dcsStopTimeInput = document.getElementById('dcsStopTime');
+            const hopperSugarAInput = document.getElementById('hopperSugarA');
+            const hopperSugarBInput = document.getElementById('hopperSugarB');
+            const feedStatusSelect = document.getElementById('feedStatus');
+            const notesInput = document.getElementById('notes');
+
             const saveButton = document.getElementById('saveButton');
             const messageBox = document.getElementById('messageBox');
             const loadingIndicator = document.getElementById('loadingIndicator');
 
             // --- Configuration ---
-            // URL ของ Google Apps Script Web App ของคุณ
             const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsVQEbYlJpQVkhp3hk28eshjkvrbDI3MfeQV2heilRFMhw4MsvKeiFq3Oxg7gLnTJk/exec'; 
             const PREDEFINED_EMPLOYEES = [
                 'นายสุชาติ เหมือนฤทธิ์',
@@ -218,14 +235,16 @@
                 'นางสาวนวพร เอี่ยมไพรบูลย์',
                 'นางกาญจนา วงษ์มณี'
             ];
-            const LOCAL_STORAGE_KEY_EMPLOYEES = 'ktisHopperEmployees';
-            const LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC = 'ktisLastEmployeeRec';
-            const LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH = 'ktisLastEmployeeWH';
+            // Keys for localStorage to remember last typed employee names
+            const LOCAL_STORAGE_KEY_EMPLOYEES = 'ktisHopperAllEmployees';
+            const LOCAL_STORAGE_KEY_LAST_RECORDER = 'ktisLastRecorderEmployee';
+            const LOCAL_STORAGE_KEY_LAST_WAREHOUSE = 'ktisLastWarehouseEmployee';
+            const LOCAL_STORAGE_KEY_LAST_LS_CHECK = 'ktisLastLsCheckEmployee'; 
+            const LOCAL_STORAGE_KEY_LAST_CHECKER = 'ktisLastCheckerEmployee'; 
 
 
             // --- Helper Functions ---
 
-            // Show message box
             function showMessage(message, type = 'info') {
                 messageBox.textContent = message;
                 messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800');
@@ -238,13 +257,12 @@
                 }
                 setTimeout(() => {
                     messageBox.classList.add('hidden');
-                }, 5000); // Hide after 5 seconds
+                }, 5000); 
             }
 
-            // Update datalist options
             function updateDatalist(inputElement, localStorageKeyForLastValue) {
                 let storedEmployees = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EMPLOYEES)) || [];
-                const allEmployees = [...new Set([...PREDEFINED_EMPLOYEES, ...storedEmployees])]; // Combine and remove duplicates
+                const allEmployees = [...new Set([...PREDEFINED_EMPLOYEES, ...storedEmployees])]; 
 
                 employeeNamesDatalist.innerHTML = '';
                 allEmployees.forEach(employee => {
@@ -253,55 +271,51 @@
                     employeeNamesDatalist.appendChild(option);
                 });
 
-                // Set last used employee if available
                 const lastEmployee = localStorage.getItem(localStorageKeyForLastValue);
                 if (lastEmployee) {
                     inputElement.value = lastEmployee;
                 }
             }
 
-            // Save new employee to local storage
             function saveEmployeeToLocalStorage(employeeName) {
                 if (!employeeName || PREDEFINED_EMPLOYEES.includes(employeeName)) {
-                    return; // Don't save predefined names or empty strings
+                    return; 
                 }
                 let storedEmployees = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EMPLOYEES)) || [];
                 if (!storedEmployees.includes(employeeName)) {
                     storedEmployees.push(employeeName);
                     localStorage.setItem(LOCAL_STORAGE_KEY_EMPLOYEES, JSON.stringify(storedEmployees));
-                    // Re-update datalists for all employee fields
-                    updateDatalist(employeeNameInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC);
-                    updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH);
+                    // Re-update all relevant datalists
+                    updateDatalist(recorderEmployeeInput, LOCAL_STORAGE_KEY_LAST_RECORDER); 
+                    updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_WAREHOUSE);
+                    updateDatalist(lsEmployeeCheckInput, LOCAL_STORAGE_KEY_LAST_LS_CHECK); 
+                    updateDatalist(checkerEmployeeInput, LOCAL_STORAGE_KEY_LAST_CHECKER); 
                 }
             }
 
-            // Get current date in DD/MM/YYYY
             function getFormattedDate(date) {
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
                 const year = date.getFullYear();
-                return `${day}/${month}/${year}`;
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`; 
             }
 
-            // Get current time in HH:MM
             function getFormattedTime(date) {
                 const hours = String(date.getHours()).padStart(2, '0');
                 const minutes = String(date.getMinutes()).padStart(2, '0');
                 return `${hours}:${minutes}`;
             }
 
-            // Calculate quantities
             function calculateQuantities() {
                 const preA = parseFloat(preFeedAInput.value) || 0;
                 const postA = parseFloat(postFeedAInput.value) || 0;
                 const preB = parseFloat(preFeedBInput.value) || 0;
-                const postB = parseFloat(parseFloat(postFeedBInput.value)) || 0; // Ensure float parsing
+                const postB = parseFloat(postFeedBInput.value) || 0; 
 
                 let quantityA = 0;
                 if (postA >= preA) {
                     quantityA = (postA - preA) / 1000;
                 } else {
-                    // Handle roll-over case: e.g., pre=99999990, post=10. Assuming counter rolls over after 99,999,999
                     quantityA = ( (99999999 - preA) + postA + 1 ) / 1000;
                 }
                 
@@ -312,8 +326,8 @@
                      quantityB = ( (99999999 - preB) + postB + 1 ) / 1000;
                 }
 
-                quantityAInput.value = quantityA.toFixed(3); // Display with 3 decimal places
-                quantityBInput.value = quantityB.toFixed(3); // Display with 3 decimal places
+                quantityAInput.value = quantityA.toFixed(3); 
+                quantityBInput.value = quantityB.toFixed(3); 
                 totalQuantityInput.value = (quantityA + quantityB).toFixed(3);
             }
 
@@ -321,25 +335,34 @@
 
             // Set current date and time on load
             const now = new Date();
-            dateInput.value = now.toISOString().split('T')[0]; //IFORNIA-MM-DD for input type="date"
+            dateInput.value = getFormattedDate(now); 
             dcsOrderTimeInput.value = getFormattedTime(now);
             dcsStopTimeInput.value = getFormattedTime(now);
 
-            // Populate employee datalists
-            updateDatalist(employeeNameInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC);
-            updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH);
+            // Populate all employee datalists
+            updateDatalist(recorderEmployeeInput, LOCAL_STORAGE_KEY_LAST_RECORDER);
+            updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_WAREHOUSE);
+            updateDatalist(lsEmployeeCheckInput, LOCAL_STORAGE_KEY_LAST_LS_CHECK);
+            updateDatalist(checkerEmployeeInput, LOCAL_STORAGE_KEY_LAST_CHECKER);
 
-
-            // Event listener for employee name input to save new names
-            employeeNameInput.addEventListener('change', () => {
-                saveEmployeeToLocalStorage(employeeNameInput.value.trim());
-                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC, employeeNameInput.value.trim());
+            // Event listeners for employee name input to save new names
+            recorderEmployeeInput.addEventListener('change', () => {
+                saveEmployeeToLocalStorage(recorderEmployeeInput.value.trim());
+                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_RECORDER, recorderEmployeeInput.value.trim());
             });
-
             warehouseEmployeeInput.addEventListener('change', () => {
                 saveEmployeeToLocalStorage(warehouseEmployeeInput.value.trim());
-                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH, warehouseEmployeeInput.value.trim());
+                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_WAREHOUSE, warehouseEmployeeInput.value.trim());
             });
+            lsEmployeeCheckInput.addEventListener('change', () => { 
+                saveEmployeeToLocalStorage(lsEmployeeCheckInput.value.trim());
+                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_LS_CHECK, lsEmployeeCheckInput.value.trim());
+            });
+            checkerEmployeeInput.addEventListener('change', () => { 
+                saveEmployeeToLocalStorage(checkerEmployeeInput.value.trim());
+                localStorage.setItem(LOCAL_STORAGE_KEY_LAST_CHECKER, checkerEmployeeInput.value.trim());
+            });
+
 
             // Calculate quantities on input changes for post-feed readings
             postFeedAInput.addEventListener('input', calculateQuantities);
@@ -356,42 +379,42 @@
                     }
                     const data = await response.json();
                     
-                    if (data.preFeedA !== undefined && data.preFeedA !== null) { // Added null check
+                    if (data.preFeedA !== undefined && data.preFeedA !== null) { 
                         preFeedAInput.value = data.preFeedA;
                     } else {
-                        preFeedAInput.value = '00000000'; // Default if no data or invalid data
+                        preFeedAInput.value = '00000000'; 
                     }
 
-                    if (data.preFeedB !== undefined && data.preFeedB !== null) { // Added null check
+                    if (data.preFeedB !== undefined && data.preFeedB !== null) { 
                         preFeedBInput.value = data.preFeedB;
                     } else {
-                        preFeedBInput.value = '00000000'; // Default if no data or invalid data
+                        preFeedBInput.value = '00000000'; 
                     }
                     showMessage('ดึงข้อมูลตัวเลขก่อนฟีดสำเร็จแล้ว', 'success');
                 } catch (error) {
                     console.error('Error fetching last readings:', error);
-                    preFeedAInput.value = '00000000'; // Default on error
-                    preFeedBInput.value = '00000000'; // Default on error
+                    preFeedAInput.value = '00000000'; 
+                    preFeedBInput.value = '00000000'; 
                     showMessage('เกิดข้อผิดพลาดในการดึงข้อมูลตัวเลขก่อนฟีด: ' + error.message, 'error');
                 } finally {
                     loadingIndicator.classList.add('hidden');
-                    calculateQuantities(); // Calculate initial quantities based on fetched/default pre-feed values
+                    calculateQuantities(); 
                 }
             }
             fetchLastReadings();
 
             // Form submission handler
             form.addEventListener('submit', async function(event) {
-                event.preventDefault(); // Prevent default form submission
+                event.preventDefault(); 
 
                 saveButton.disabled = true;
                 loadingIndicator.textContent = "กำลังบันทึกข้อมูล...";
                 loadingIndicator.classList.remove('hidden');
-                messageBox.classList.add('hidden'); // Hide any previous messages
+                messageBox.classList.add('hidden'); 
 
                 const formData = {
-                    date: dateInput.value, //IFORNIA-MM-DD
-                    employeeName: employeeNameInput.value.trim(),
+                    date: dateInput.value, 
+                    recorderEmployee: recorderEmployeeInput.value.trim(), 
                     preFeedA: preFeedAInput.value,
                     preFeedB: preFeedBInput.value,
                     postFeedA: postFeedAInput.value,
@@ -401,45 +424,41 @@
                     totalQuantity: totalQuantityInput.value,
                     dcsOrderTime: dcsOrderTimeInput.value,
                     dcsStopTime: dcsStopTimeInput.value,
-                    hopperSugarA: document.getElementById('hopperSugarA').value,
-                    hopperSugarB: document.getElementById('hopperSugarB').value,
-                    lsEmployee: document.getElementById('lsEmployee').value.trim(),
+                    // tankLevelPercent, lsEmployeeTopHopper, lsEmployee (SILO) are removed
+                    hopperSugarA: hopperSugarAInput.value,
+                    hopperSugarB: hopperSugarBInput.value,
                     warehouseEmployee: warehouseEmployeeInput.value.trim(),
-                    feedStatus: document.getElementById('feedStatus').value,
-                    notes: document.getElementById('notes').value.trim()
+                    lsEmployeeCheck: lsEmployeeCheckInput.value.trim(), 
+                    feedStatus: feedStatusSelect.value,
+                    notes: notesInput.value.trim(),
+                    checkerEmployee: checkerEmployeeInput.value.trim() 
                 };
+
+                console.log('ข้อมูลฟอร์มที่กำลังจะถูกส่ง:', formData);
 
                 try {
                     const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                         method: 'POST',
-                        mode: 'no-cors', // Required for Google Apps Script Web App as endpoint
+                        mode: 'no-cors', 
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded', // Apps Script expects this for e.parameter
+                            'Content-Type': 'application/x-www-form-urlencoded', 
                         },
-                        // Encode data for Apps Script e.parameter
                         body: new URLSearchParams(formData).toString()
                     });
 
-                    // Due to 'no-cors' mode, response.ok will always be false, and we can't read response.json().
-                    // We rely on the Apps Script execution completing successfully.
-                    // A simple workaround for demonstration is to assume success if no immediate error.
-                    // For robust error handling, consider configuring CORS on Apps Script if possible, or
-                    // using a client-side proxy that handles CORS and forwards to Apps Script.
-                    // For this example, we'll assume success and refresh if no network error occurred.
                     showMessage('บันทึกข้อมูลสำเร็จแล้ว!', 'success');
-                    form.reset(); // Clear form after successful submission
+                    form.reset(); 
                     
-                    // Reset auto-filled fields and refetch last readings for next entry
                     const nowAfterSubmit = new Date();
-                    dateInput.value = nowAfterSubmit.toISOString().split('T')[0];
+                    dateInput.value = getFormattedDate(nowAfterSubmit);
                     dcsOrderTimeInput.value = getFormattedTime(nowAfterSubmit);
                     dcsStopTimeInput.value = getFormattedTime(nowAfterSubmit);
-                    fetchLastReadings(); // Fetch new pre-feed values
-                    updateDatalist(employeeNameInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC); // Re-set last employee
-                    updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH); // Re-set last employee
-                    localStorage.setItem(LOCAL_STORAGE_KEY_LAST_EMPLOYEE_REC, employeeNameInput.value.trim()); // Persist last selected employee
-                    localStorage.setItem(LOCAL_STORAGE_KEY_LAST_EMPLOYEE_WH, warehouseEmployeeInput.value.trim()); // Persist last selected employee
+                    fetchLastReadings(); 
 
+                    updateDatalist(recorderEmployeeInput, LOCAL_STORAGE_KEY_LAST_RECORDER); 
+                    updateDatalist(warehouseEmployeeInput, LOCAL_STORAGE_KEY_LAST_WAREHOUSE);
+                    updateDatalist(lsEmployeeCheckInput, LOCAL_STORAGE_KEY_LAST_LS_CHECK);
+                    updateDatalist(checkerEmployeeInput, LOCAL_STORAGE_KEY_LAST_CHECKER);
 
                 } catch (error) {
                     console.error('Error submitting form:', error);
@@ -453,4 +472,34 @@
     </script>
 </body>
 </html>
-Rename to index.html for GitHub Pages
+```
+
+### **ขั้นตอนต่อไปเพื่อให้หน้าเว็บของคุณอัปเดตและทำงานได้ (สำคัญมาก!)**
+
+เนื่องจากคุณได้เลือกโค้ด HTML ทั้งหมดของหน้า `hopperFeed.html` และแจ้งว่าหน้าเว็บยังคงเป็นเวอร์ชันเดิม นั่นหมายความว่าการเปลี่ยนแปลงโค้ดที่คุณทำในเครื่องยังไม่ได้ถูกนำไปใช้จริงบนเว็บค่ะ
+
+คุณต้องทำตามขั้นตอนเหล่านี้เพื่อให้หน้าเว็บของคุณอัปเดตและทำงานได้อย่างถูกต้อง:
+
+1.  **ยืนยันว่าคุณบันทึกไฟล์ `hopperFeed.html` แล้ว:**
+    * หลังจากคัดลอกโค้ด HTML ด้านบนไปวางในไฟล์ `hopperFeed.html` ของคุณในเครื่องคอมพิวเตอร์ (เช่น `C:/Users/WR_KTIS/Desktop/hopperFeed.html`) ให้แน่ใจว่าคุณ **"บันทึก" (Save)** ไฟล์นั้นแล้ว
+
+2.  **อัปโหลดไฟล์ `hopperFeed.html` ที่แก้ไขแล้วขึ้น GitHub ใหม่:**
+    * ถ้าคุณใช้ GitHub Pages ในการโฮสต์หน้าเว็บ คุณต้องอัปโหลดไฟล์ `hopperFeed.html` เวอร์ชั่นล่าสุดที่คุณเพิ่งแก้ไขและบันทึก ไปยัง GitHub Repository ของคุณอีกครั้ง
+    * **วิธีอัปโหลด (แนะนำ):**
+        * ไปที่ GitHub Repository ของคุณในเว็บเบราว์เซอร์
+        * คลิกที่ชื่อไฟล์ `hopperFeed.html` ในรายการไฟล์
+        * มองหาไอคอนรูปดินสอ **"Edit this file"** ที่อยู่ด้านขวาบนของบล็อกโค้ดแล้วคลิก
+        * **คัดลอกโค้ด HTML ทั้งหมด** จากไฟล์ `hopperFeed.html` ในเครื่องคอมพิวเตอร์ของคุณ แล้ว **วางทับ** โค้ดทั้งหมดในช่องแก้ไขบนหน้าเว็บ GitHub
+        * เลื่อนลงมาด้านล่าง พิมพ์ข้อความ Commit (เช่น "Update form layout and fields")
+        * คลิกปุ่ม **"Commit changes"** สีเขียว
+    * **รอ:** หลังจาก Commit แล้ว GitHub Pages จะใช้เวลาสักครู่ (ประมาณ 1-5 นาที) ในการอัปเดตหน้าเว็บของคุณ คุณสามารถตรวจสอบสถานะได้ที่แท็บ **Settings > Pages** ใน Repository ของคุณ
+
+3.  **เปิดใช้งานหน้าเว็บผ่าน Web Server (สำคัญมากเพื่อหลีกเลี่ยงปัญหา CORS และดึงค่าตัวเลขก่อนฟีด):**
+    * **อย่าเปิดไฟล์ `hopperFeed.html` โดยตรงจากการดับเบิลคลิก** ซึ่งจะทำให้ URL ขึ้นต้นด้วย `file:///` และเบราว์เซอร์จะบล็อกการเชื่อมต่อกับ Google Apps Script ทำให้ "ตัวเลขก่อนฟีด" ไม่ขึ้น และอาจบันทึกข้อมูลไม่ได้
+    * **วิธีที่ถูกต้อง:**
+        * **หากใช้ Visual Studio Code (VS Code) และมี Live Server Extension:** คลิกขวาที่ไฟล์ `hopperFeed.html` ใน VS Code Explorer แล้วเลือก **"Open with Live Server"**
+        * **หากโฮสต์บน GitHub Pages:** เข้าถึงหน้าฟอร์มของคุณผ่าน URL ของ GitHub Pages (เช่น `https://<ชื่อผู้ใช้ GitHub ของคุณ>.github.io/<ชื่อ Repository ของคุณ>/hopperFeed.html`)
+
+**สุดท้ายแต่ไม่ท้ายสุด:** คุณต้องมั่นใจว่า **Google Apps Script ของคุณได้ถูก Deploy (ปรับใช้) ใหม่ล่าสุด** ด้วยโค้ด Apps Script ที่ฉันให้ไปก่อนหน้านี้ด้วยนะคะ เพราะ `doPost` ใน Apps Script ต้องสอดคล้องกับฟิลด์ใหม่ที่คุณบันทึกจาก HTML ค่ะ
+
+เมื่อคุณทำตามขั้นตอนเหล่านี้อย่างครบถ้วน หน้าเว็บของคุณจะแสดงผลเวอร์ชันล่าสุด และ "ตัวเลขก่อนฟีด" ควรจะปรากฏขึ้นมา หากมีข้อมูลบันทึกใน Google Sheet แล้ว
