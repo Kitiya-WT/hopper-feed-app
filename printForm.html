@@ -1,1127 +1,1122 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FM-WT-68 - พิมพ์แบบฟอร์ม</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e5e7eb;
+            font-family: Tahoma, Arial, "Noto Sans Thai", sans-serif;
+        }
+
+        .toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+
+            padding: 10px;
+            background: rgba(255,255,255,.96);
+            border-bottom: 1px solid #d1d5db;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        }
+
+        .toolbar button {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-print {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-close {
+            background: #6b7280;
+            color: white;
+        }
+
+        .empty-message {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .empty-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,.12);
+        }
 
-<title>FM-WT-68</title>
+        /*
+         * FM-WT-68 ต้นฉบับเป็นขนาด Letter
+         * 216 x 279 mm
+         */
+        .page {
+            position: relative;
 
-<style>
-@page {
-    size: Letter portrait;
-    margin: 0;
-}
+            width: 216mm;
+            height: 279mm;
 
-* {
-    box-sizing: border-box;
-}
+            margin: 70px auto 20px auto;
 
-html,
-body {
-    margin: 0;
-    padding: 0;
-    background: #ddd;
-}
+            background: white;
+            overflow: hidden;
 
-.toolbar {
-    width: 8.5in;
-    margin: 15px auto;
-    text-align: center;
-}
+            box-shadow: 0 2px 15px rgba(0,0,0,.20);
+        }
 
-.toolbar button {
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    margin: 0 5px;
-    font-size: 15px;
-    cursor: pointer;
-}
+        .template {
+            position: absolute;
+            inset: 0;
 
-.btn-print {
-    background: #166534;
-    color: white;
-}
-
-.btn-close {
-    background: #555;
-    color: white;
-}
-
-.status {
-    width: 8.5in;
-    margin: 10px auto;
-    padding: 8px;
-    background: white;
-    text-align: center;
-    border-radius: 5px;
-    font-family: Tahoma, sans-serif;
-}
-
-
-/* =====================================================
-   กระดาษ Letter
-   ===================================================== */
-
-.page {
-    position: relative;
-
-    width: 8.5in;
-    height: 11in;
-
-    margin: 0 auto 30px;
-
-    background-image: url("FM-WT-68-template.png");
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-
-    background-color: white;
-
-    overflow: hidden;
-}
-
-
-/* =====================================================
-   ข้อมูลที่ Overlay
-   ===================================================== */
-
-.field {
-    position: absolute;
-
-    font-family:
-        "TH Sarabun New",
-        "Sarabun",
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    font-size: 11pt;
-
-    color: #000;
-
-    line-height: 1;
-
-    white-space: nowrap;
-
-    text-align: center;
-
-    pointer-events: none;
-}
-
-
-/* =====================================================
-   ส่วนที่ 1
-   ===================================================== */
-
-.s1-date {
-    left: 10.5%;
-    top: 6.15%;
-    width: 13%;
-}
-
-.s1-pre-a {
-    left: 27.5%;
-    top: 9.25%;
-    width: 13%;
-}
-
-.s1-pre-b {
-    left: 27.5%;
-    top: 11.35%;
-    width: 13%;
-}
-
-.s1-post-a {
-    left: 42.5%;
-    top: 9.25%;
-    width: 13%;
-}
-
-.s1-post-b {
-    left: 42.5%;
-    top: 11.35%;
-    width: 13%;
-}
-
-.s1-qty-a {
-    left: 57.5%;
-    top: 9.25%;
-    width: 10%;
-}
-
-.s1-qty-b {
-    left: 57.5%;
-    top: 11.35%;
-    width: 10%;
-}
-
-.s1-total {
-    left: 57%;
-    top: 13.55%;
-    width: 11%;
-}
-
-.s1-order {
-    left: 81%;
-    top: 9.25%;
-    width: 14%;
-}
-
-.s1-stop {
-    left: 81%;
-    top: 11.35%;
-    width: 14%;
-}
-
-.s1-ls {
-    left: 29%;
-    top: 23.15%;
-    width: 25%;
-}
-
-.s1-warehouse {
-    left: 29%;
-    top: 25.15%;
-    width: 25%;
-}
-
-.s1-hopper-a {
-    left: 73%;
-    top: 23.15%;
-    width: 17%;
-}
-
-.s1-hopper-b {
-    left: 73%;
-    top: 25.15%;
-    width: 17%;
-}
-
-.s1-normal {
-    left: 22.8%;
-    top: 28.0%;
-}
-
-.s1-abnormal {
-    left: 50%;
-    top: 28.0%;
-}
-
-.s1-note {
-    left: 54%;
-    top: 29.5%;
-    width: 40%;
-    height: 7%;
-    text-align: left;
-    white-space: normal;
-    line-height: 1.15;
-}
-
-.s1-recorder {
-    left: 20%;
-    top: 40.0%;
-    width: 23%;
-}
-
-.s1-checker {
-    left: 63%;
-    top: 40.0%;
-    width: 23%;
-}
-
-
-/* =====================================================
-   ส่วนที่ 2
-   ===================================================== */
-
-.s2-date {
-    left: 10.5%;
-    top: 44.8%;
-    width: 13%;
-}
-
-.s2-pre-a {
-    left: 27.5%;
-    top: 47.9%;
-    width: 13%;
-}
-
-.s2-pre-b {
-    left: 27.5%;
-    top: 50.0%;
-    width: 13%;
-}
-
-.s2-post-a {
-    left: 42.5%;
-    top: 47.9%;
-    width: 13%;
-}
-
-.s2-post-b {
-    left: 42.5%;
-    top: 50.0%;
-    width: 13%;
-}
-
-.s2-qty-a {
-    left: 57.5%;
-    top: 47.9%;
-    width: 10%;
-}
-
-.s2-qty-b {
-    left: 57.5%;
-    top: 50.0%;
-    width: 10%;
-}
-
-.s2-total {
-    left: 57%;
-    top: 52.2%;
-    width: 11%;
-}
-
-.s2-order {
-    left: 81%;
-    top: 47.9%;
-    width: 14%;
-}
-
-.s2-stop {
-    left: 81%;
-    top: 50.0%;
-    width: 14%;
-}
-
-.s2-ls {
-    left: 29%;
-    top: 61.8%;
-    width: 25%;
-}
-
-.s2-warehouse {
-    left: 29%;
-    top: 63.8%;
-    width: 25%;
-}
-
-.s2-hopper-a {
-    left: 73%;
-    top: 61.8%;
-    width: 17%;
-}
-
-.s2-hopper-b {
-    left: 73%;
-    top: 63.8%;
-    width: 17%;
-}
-
-.s2-normal {
-    left: 22.8%;
-    top: 66.65%;
-}
-
-.s2-abnormal {
-    left: 50%;
-    top: 66.65%;
-}
-
-.s2-note {
-    left: 54%;
-    top: 68.15%;
-    width: 40%;
-    height: 7%;
-    text-align: left;
-    white-space: normal;
-    line-height: 1.15;
-}
-
-.s2-recorder {
-    left: 20%;
-    top: 78.65%;
-    width: 23%;
-}
-
-.s2-checker {
-    left: 63%;
-    top: 78.65%;
-    width: 23%;
-}
-
-
-/* =====================================================
-   ส่วนที่ 3
-   ===================================================== */
-
-.s3-date {
-    left: 10.5%;
-    top: 83.45%;
-    width: 13%;
-}
-
-.s3-pre-a {
-    left: 27.5%;
-    top: 86.55%;
-    width: 13%;
-}
-
-.s3-pre-b {
-    left: 27.5%;
-    top: 88.65%;
-    width: 13%;
-}
-
-.s3-post-a {
-    left: 42.5%;
-    top: 86.55%;
-    width: 13%;
-}
-
-.s3-post-b {
-    left: 42.5%;
-    top: 88.65%;
-    width: 13%;
-}
-
-.s3-qty-a {
-    left: 57.5%;
-    top: 86.55%;
-    width: 10%;
-}
-
-.s3-qty-b {
-    left: 57.5%;
-    top: 88.65%;
-    width: 10%;
-}
-
-.s3-total {
-    left: 57%;
-    top: 90.85%;
-    width: 11%;
-}
-
-.s3-order {
-    left: 81%;
-    top: 86.55%;
-    width: 14%;
-}
-
-.s3-stop {
-    left: 81%;
-    top: 88.65%;
-    width: 14%;
-}
-
-.s3-ls {
-    left: 29%;
-    top: 100.45%;
-    width: 25%;
-}
-
-.s3-warehouse {
-    left: 29%;
-    top: 102.45%;
-    width: 25%;
-}
-
-.s3-hopper-a {
-    left: 73%;
-    top: 100.45%;
-    width: 17%;
-}
-
-.s3-hopper-b {
-    left: 73%;
-    top: 102.45%;
-    width: 17%;
-}
-
-.s3-normal {
-    left: 22.8%;
-    top: 105.3%;
-}
-
-.s3-abnormal {
-    left: 50%;
-    top: 105.3%;
-}
-
-.s3-note {
-    left: 54%;
-    top: 106.8%;
-    width: 40%;
-    height: 7%;
-    text-align: left;
-    white-space: normal;
-    line-height: 1.15;
-}
-
-.s3-recorder {
-    left: 20%;
-    top: 117.3%;
-    width: 23%;
-}
-
-.s3-checker {
-    left: 63%;
-    top: 117.3%;
-    width: 23%;
-}
-
-
-/* =====================================================
-   เครื่องหมายถูก
-   ===================================================== */
-
-.check {
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-
-/* =====================================================
-   PRINT
-   ===================================================== */
-
-@media print {
-
-    html,
-    body {
-        width: 8.5in;
-        height: 11in;
-        margin: 0;
-        padding: 0;
-        background: white;
-    }
-
-    .toolbar,
-    .status {
-        display: none !important;
-    }
-
-    .page {
-        margin: 0;
-        width: 8.5in;
-        height: 11in;
-    }
-}
-
-</style>
+            width: 100%;
+            height: 100%;
+
+            display: block;
+
+            object-fit: fill;
+        }
+
+        .value {
+            position: absolute;
+
+            transform: translate(-50%, -50%);
+
+            color: #000;
+
+            font-family:
+                Tahoma,
+                Arial,
+                "Noto Sans Thai",
+                sans-serif;
+
+            font-size: 9pt;
+            font-weight: normal;
+
+            line-height: 1.05;
+
+            white-space: nowrap;
+
+            z-index: 10;
+
+            pointer-events: none;
+
+            text-align: center;
+        }
+
+        .small {
+            font-size: 8pt;
+        }
+
+        .employee {
+            font-size: 8.5pt;
+        }
+
+        .number {
+            font-size: 8.5pt;
+        }
+
+        .total {
+            font-weight: bold;
+            font-size: 9pt;
+        }
+
+        .check {
+            font-size: 15pt;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .notes {
+            position: absolute;
+
+            z-index: 10;
+
+            color: #000;
+
+            font-family:
+                Tahoma,
+                Arial,
+                "Noto Sans Thai",
+                sans-serif;
+
+            font-size: 7.5pt;
+
+            line-height: 16.2px;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            width: 185px;
+
+            pointer-events: none;
+        }
+
+        .notes div {
+            height: 16.2px;
+            overflow: hidden;
+        }
+
+        @page {
+            size: Letter portrait;
+            margin: 0;
+        }
+
+        @media print {
+
+            html,
+            body {
+                background: white;
+            }
+
+            .toolbar {
+                display: none !important;
+            }
+
+            .page {
+                width: 216mm;
+                height: 279mm;
+
+                margin: 0;
+
+                box-shadow: none;
+
+                page-break-after: always;
+            }
+
+            .page:last-child {
+                page-break-after: auto;
+            }
+        }
+    </style>
 </head>
-
 
 <body>
 
+    <!-- ==============================
+         ปุ่มด้านบน
+    =============================== -->
+    <div class="toolbar">
 
-<div class="toolbar">
+        <button
+            type="button"
+            class="btn-print"
+            onclick="window.print()"
+        >
+            🖨️ พิมพ์แบบฟอร์ม
+        </button>
 
-    <button
-        class="btn-print"
-        onclick="window.print()"
-    >
-        🖨️ พิมพ์ FM-WT-68
-    </button>
+        <button
+            type="button"
+            class="btn-close"
+            onclick="window.close()"
+        >
+            ✕ ปิด
+        </button>
 
-    <button
-        class="btn-close"
-        onclick="window.close()"
-    >
-        ปิด
-    </button>
+    </div>
 
-</div>
 
+    <!-- ==============================
+         พื้นที่แสดงแบบฟอร์ม
+    =============================== -->
+    <div id="pageContainer"></div>
 
-<div
-    class="status"
-    id="status"
->
-    กำลังโหลดข้อมูล...
-</div>
 
+    <script>
 
-<div class="page">
+        /*
+        ==========================================================
+        CONFIG
+        ==========================================================
+        */
 
+        const STORAGE_KEY = "ktisFMWT68Records";
 
-    <!-- ================= SECTION 1 ================= -->
+        const LAST_RECORD_KEY = "ktisLastFMWT68Feed";
 
-    <div class="field s1-date" id="date1"></div>
 
-    <div class="field s1-pre-a" id="preA1"></div>
-    <div class="field s1-pre-b" id="preB1"></div>
+        /*
+        ==========================================================
+        อ่านข้อมูลจาก LocalStorage
+        ==========================================================
+        */
 
-    <div class="field s1-post-a" id="postA1"></div>
-    <div class="field s1-post-b" id="postB1"></div>
+        function getRecords() {
 
-    <div class="field s1-qty-a" id="qtyA1"></div>
-    <div class="field s1-qty-b" id="qtyB1"></div>
+            let records = [];
 
-    <div class="field s1-total" id="total1"></div>
+            try {
 
-    <div class="field s1-order" id="order1"></div>
-    <div class="field s1-stop" id="stop1"></div>
+                const data =
+                    localStorage.getItem(STORAGE_KEY);
 
-    <div class="field s1-ls" id="ls1"></div>
-    <div class="field s1-warehouse" id="warehouse1"></div>
+                if (data) {
 
-    <div class="field s1-hopper-a" id="hopperA1"></div>
-    <div class="field s1-hopper-b" id="hopperB1"></div>
+                    const parsed = JSON.parse(data);
 
-    <div class="field check s1-normal" id="normal1"></div>
-    <div class="field check s1-abnormal" id="abnormal1"></div>
+                    if (Array.isArray(parsed)) {
+                        records = parsed;
+                    }
 
-    <div class="field s1-note" id="note1"></div>
+                }
 
-    <div class="field s1-recorder" id="recorder1"></div>
-    <div class="field s1-checker" id="checker1"></div>
+            } catch (error) {
 
+                console.error(
+                    "อ่านข้อมูลไม่สำเร็จ:",
+                    error
+                );
 
-    <!-- ================= SECTION 2 ================= -->
+            }
 
-    <div class="field s2-date" id="date2"></div>
 
-    <div class="field s2-pre-a" id="preA2"></div>
-    <div class="field s2-pre-b" id="preB2"></div>
+            /*
+             * ถ้าไม่มี Array ให้ลองใช้รายการล่าสุด
+             */
 
-    <div class="field s2-post-a" id="postA2"></div>
-    <div class="field s2-post-b" id="postB2"></div>
+            if (records.length === 0) {
 
-    <div class="field s2-qty-a" id="qtyA2"></div>
-    <div class="field s2-qty-b" id="qtyB2"></div>
+                try {
 
-    <div class="field s2-total" id="total2"></div>
+                    const last =
+                        localStorage.getItem(
+                            LAST_RECORD_KEY
+                        );
 
-    <div class="field s2-order" id="order2"></div>
-    <div class="field s2-stop" id="stop2"></div>
+                    if (last) {
 
-    <div class="field s2-ls" id="ls2"></div>
-    <div class="field s2-warehouse" id="warehouse2"></div>
+                        const parsed =
+                            JSON.parse(last);
 
-    <div class="field s2-hopper-a" id="hopperA2"></div>
-    <div class="field s2-hopper-b" id="hopperB2"></div>
+                        if (parsed) {
+                            records = [parsed];
+                        }
 
-    <div class="field check s2-normal" id="normal2"></div>
-    <div class="field check s2-abnormal" id="abnormal2"></div>
+                    }
 
-    <div class="field s2-note" id="note2"></div>
+                } catch (error) {
 
-    <div class="field s2-recorder" id="recorder2"></div>
-    <div class="field s2-checker" id="checker2"></div>
+                    console.error(
+                        "อ่านข้อมูลล่าสุดไม่สำเร็จ:",
+                        error
+                    );
 
+                }
 
-    <!-- ================= SECTION 3 ================= -->
+            }
 
-    <div class="field s3-date" id="date3"></div>
 
-    <div class="field s3-pre-a" id="preA3"></div>
-    <div class="field s3-pre-b" id="preB3"></div>
+            /*
+             * เอาเฉพาะ 3 รายการล่าสุด
+             */
 
-    <div class="field s3-post-a" id="postA3"></div>
-    <div class="field s3-post-b" id="postB3"></div>
-
-    <div class="field s3-qty-a" id="qtyA3"></div>
-    <div class="field s3-qty-b" id="qtyB3"></div>
-
-    <div class="field s3-total" id="total3"></div>
-
-    <div class="field s3-order" id="order3"></div>
-    <div class="field s3-stop" id="stop3"></div>
-
-    <div class="field s3-ls" id="ls3"></div>
-    <div class="field s3-warehouse" id="warehouse3"></div>
-
-    <div class="field s3-hopper-a" id="hopperA3"></div>
-    <div class="field s3-hopper-b" id="hopperB3"></div>
-
-    <div class="field check s3-normal" id="normal3"></div>
-    <div class="field check s3-abnormal" id="abnormal3"></div>
-
-    <div class="field s3-note" id="note3"></div>
-
-    <div class="field s3-recorder" id="recorder3"></div>
-    <div class="field s3-checker" id="checker3"></div>
-
-</div>
-
-
-<script>
-
-/* =========================================================
-   อ่านข้อมูลจาก localStorage
-   ========================================================= */
-
-function getData() {
-
-    try {
-
-        const data =
-            localStorage.getItem(
-                "ktisFeedPrintData"
-            );
-
-        if (data) {
-
-            return JSON.parse(data);
-
-        }
-
-    } catch (error) {
-
-        console.error(error);
-
-    }
-
-    return null;
-}
-
-
-/* =========================================================
-   ใส่ข้อความ
-   ========================================================= */
-
-function setText(id, value) {
-
-    const el =
-        document.getElementById(id);
-
-    if (!el) return;
-
-    el.textContent =
-        value ?? "";
-
-}
-
-
-/* =========================================================
-   วันที่
-   ========================================================= */
-
-function formatDate(value) {
-
-    if (!value) return "";
-
-    const d =
-        new Date(value);
-
-    if (isNaN(d.getTime())) {
-
-        return value;
-
-    }
-
-    return (
-        String(d.getDate()).padStart(2, "0")
-        + "/"
-        +
-        String(d.getMonth() + 1).padStart(2, "0")
-        + "/"
-        +
-        d.getFullYear()
-    );
-
-}
-
-
-/* =========================================================
-   ตัวเลข
-   ========================================================= */
-
-function number(value, decimals = 0) {
-
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-
-        return "";
-
-    }
-
-    const n =
-        Number(
-            String(value)
-                .replace(/,/g, "")
-        );
-
-    if (isNaN(n)) {
-
-        return value;
-
-    }
-
-    return n.toLocaleString(
-        "en-US",
-        {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals
-        }
-    );
-
-}
-
-
-/* =========================================================
-   คำนวณ Ton
-   ========================================================= */
-
-function calcTon(before, after) {
-
-    if (
-        before === "" ||
-        after === ""
-    ) {
-
-        return "";
-
-    }
-
-    const b =
-        Number(
-            String(before)
-                .replace(/,/g, "")
-        );
-
-    const a =
-        Number(
-            String(after)
-                .replace(/,/g, "")
-        );
-
-    if (
-        isNaN(b) ||
-        isNaN(a)
-    ) {
-
-        return "";
-
-    }
-
-    let result;
-
-    if (a >= b) {
-
-        result =
-            (a - b) / 1000;
-
-    } else {
-
-        result =
-            (
-                (99999999 - b)
-                + a
-                + 1
-            ) / 1000;
-
-    }
-
-    return result.toFixed(3);
-
-}
-
-
-/* =========================================================
-   ใส่ข้อมูล 1 รายการ
-   ========================================================= */
-
-function fillSection(data, no) {
-
-    if (!data) return;
-
-
-    /* วันที่ */
-
-    setText(
-        `date${no}`,
-        formatDate(data.date)
-    );
-
-
-    /* ก่อนฟีด */
-
-    setText(
-        `preA${no}`,
-        number(data.preFeedA)
-    );
-
-    setText(
-        `preB${no}`,
-        number(data.preFeedB)
-    );
-
-
-    /* หลังฟีด */
-
-    setText(
-        `postA${no}`,
-        number(data.postFeedA)
-    );
-
-    setText(
-        `postB${no}`,
-        number(data.postFeedB)
-    );
-
-
-    /* จำนวน */
-
-    let qtyA =
-        data.quantityA;
-
-    let qtyB =
-        data.quantityB;
-
-
-    if (
-        qtyA === "" ||
-        qtyA === undefined
-    ) {
-
-        qtyA =
-            calcTon(
-                data.preFeedA,
-                data.postFeedA
-            );
-
-    }
-
-
-    if (
-        qtyB === "" ||
-        qtyB === undefined
-    ) {
-
-        qtyB =
-            calcTon(
-                data.preFeedB,
-                data.postFeedB
-            );
-
-    }
-
-
-    setText(
-        `qtyA${no}`,
-        number(qtyA, 3)
-    );
-
-    setText(
-        `qtyB${no}`,
-        number(qtyB, 3)
-    );
-
-
-    /* รวม */
-
-    let total =
-        data.totalQuantity;
-
-
-    if (
-        total === "" ||
-        total === undefined
-    ) {
-
-        total =
-            (
-                Number(qtyA || 0)
-                +
-                Number(qtyB || 0)
-            ).toFixed(3);
-
-    }
-
-
-    setText(
-        `total${no}`,
-        number(total, 3)
-    );
-
-
-    /* DCS */
-
-    setText(
-        `order${no}`,
-        data.dcsOrderTime
-    );
-
-    setText(
-        `stop${no}`,
-        data.dcsStopTime
-    );
-
-
-    /* พนักงาน */
-
-    setText(
-        `ls${no}`,
-        data.lsEmployeeCheck
-    );
-
-    setText(
-        `warehouse${no}`,
-        data.warehouseEmployee
-    );
-
-
-    /* Hopper */
-
-    setText(
-        `hopperA${no}`,
-        number(data.hopperSugarA)
-    );
-
-    setText(
-        `hopperB${no}`,
-        number(data.hopperSugarB)
-    );
-
-
-    /* สถานะ */
-
-    const status =
-        String(
-            data.feedStatus || ""
-        ).trim();
-
-
-    if (
-        status === "ปกติ"
-    ) {
-
-        setText(
-            `normal${no}`,
-            "✓"
-        );
-
-        setText(
-            `abnormal${no}`,
-            ""
-        );
-
-    }
-    else if (
-        status === "ไม่ปกติ"
-    ) {
-
-        setText(
-            `normal${no}`,
-            ""
-        );
-
-        setText(
-            `abnormal${no}`,
-            "✓"
-        );
-
-    }
-
-
-    /* หมายเหตุ */
-
-    setText(
-        `note${no}`,
-        data.notes
-    );
-
-
-    /* ผู้บันทึก */
-
-    setText(
-        `recorder${no}`,
-        data.recorderEmployee
-    );
-
-
-    /* ผู้ตรวจสอบ */
-
-    setText(
-        `checker${no}`,
-        data.checkerEmployee
-    );
-
-}
-
-
-/* =========================================================
-   เริ่มต้น
-   ========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
-
-        const data =
-            getData();
-
-
-        if (!data) {
-
-            document.getElementById(
-                "status"
-            ).textContent =
-                "ไม่พบข้อมูล กรุณากลับไปกรอกข้อมูลในหน้าหลัก";
-
-            return;
+            return records.slice(-3);
 
         }
 
 
         /*
-         * รองรับทั้ง
-         * object 1 รายการ
-         * และ array สูงสุด 3 รายการ
-         */
+        ==========================================================
+        แปลงวันที่เป็น พ.ศ.
+        ==========================================================
+        */
 
-        let records;
+        function formatThaiDate(dateString) {
 
+            if (!dateString) {
+                return "";
+            }
 
-        if (Array.isArray(data)) {
+            const parts =
+                String(dateString).split("-");
 
-            records = data;
+            if (parts.length !== 3) {
+                return dateString;
+            }
+
+            const year =
+                parseInt(parts[0], 10);
+
+            const month =
+                parts[1];
+
+            const day =
+                parts[2];
+
+            if (
+                Number.isNaN(year) ||
+                !month ||
+                !day
+            ) {
+                return dateString;
+            }
+
+            return (
+                day +
+                "/" +
+                month +
+                "/" +
+                (year + 543)
+            );
 
         }
-        else if (
-            Array.isArray(data.records)
-        ) {
 
-            records = data.records;
+
+        /*
+        ==========================================================
+        แปลงตัวเลข
+        ==========================================================
+        */
+
+        function cleanValue(value) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return "";
+            }
+
+            return String(value).trim();
 
         }
-        else {
 
-            records = [data];
+
+        /*
+        ==========================================================
+        แปลงตัวเลขเป็น 3 ตำแหน่ง
+        ==========================================================
+        */
+
+        function formatTon(value) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                value === ""
+            ) {
+                return "";
+            }
+
+            const number =
+                Number(
+                    String(value).replace(/,/g, "")
+                );
+
+            if (Number.isNaN(number)) {
+                return value;
+            }
+
+            return number.toFixed(3);
 
         }
 
 
-        records
-            .slice(0, 3)
-            .forEach(
-                function(record, index) {
+        /*
+        ==========================================================
+        แบ่งหมายเหตุออกเป็น 4 บรรทัด
+        ==========================================================
+        */
 
-                    fillSection(
-                        record,
-                        index + 1
-                    );
+        function splitNotes(text) {
+
+            text = cleanValue(text);
+
+            if (!text) {
+                return ["", "", "", ""];
+            }
+
+            const maxChars = 42;
+
+            const result = [];
+
+            let current = "";
+
+            const words =
+                text.split(/\s+/);
+
+            for (const word of words) {
+
+                const test =
+                    current
+                        ? current + " " + word
+                        : word;
+
+                if (test.length <= maxChars) {
+
+                    current = test;
+
+                } else {
+
+                    if (current) {
+                        result.push(current);
+                    }
+
+                    current = word;
 
                 }
+
+                if (result.length >= 4) {
+                    break;
+                }
+
+            }
+
+            if (
+                current &&
+                result.length < 4
+            ) {
+                result.push(current);
+            }
+
+
+            while (result.length < 4) {
+                result.push("");
+            }
+
+
+            return result.slice(0, 4);
+
+        }
+
+
+        /*
+        ==========================================================
+        ตำแหน่งบนแบบฟอร์ม
+        ==========================================================
+        
+        อ้างอิงจากแบบฟอร์ม Letter 612 x 792 pt
+        */
+
+        const PAGE_WIDTH = 612;
+        const PAGE_HEIGHT = 792;
+
+
+        function percentX(x) {
+
+            return (
+                (x / PAGE_WIDTH) * 100
+            ) + "%";
+
+        }
+
+
+        function percentY(y) {
+
+            return (
+                (y / PAGE_HEIGHT) * 100
+            ) + "%";
+
+        }
+
+
+        /*
+        ==========================================================
+        สร้าง Text Element
+        ==========================================================
+        */
+
+        function createValue(
+            page,
+            text,
+            x,
+            y,
+            className = ""
+        ) {
+
+            if (
+                text === null ||
+                text === undefined ||
+                text === ""
+            ) {
+                return;
+            }
+
+            const el =
+                document.createElement("div");
+
+            el.className =
+                "value " + className;
+
+            el.textContent =
+                cleanValue(text);
+
+            el.style.left =
+                percentX(x);
+
+            el.style.top =
+                percentY(y);
+
+            page.appendChild(el);
+
+        }
+
+
+        /*
+        ==========================================================
+        สร้าง Notes
+        ==========================================================
+        */
+
+        function createNotes(
+            page,
+            text,
+            offsetY
+        ) {
+
+            const notes =
+                splitNotes(text);
+
+            const box =
+                document.createElement("div");
+
+            box.className = "notes";
+
+            /*
+             * จุดเริ่มต้นของหมายเหตุ
+             */
+
+            box.style.left =
+                percentX(345);
+
+            box.style.top =
+                percentY(408 + offsetY);
+
+            for (const line of notes) {
+
+                const div =
+                    document.createElement("div");
+
+                div.textContent = line;
+
+                box.appendChild(div);
+
+            }
+
+            page.appendChild(box);
+
+        }
+
+
+        /*
+        ==========================================================
+        เพิ่มเครื่องหมาย ✓
+        ==========================================================
+        */
+
+        function createStatus(
+            page,
+            record,
+            offsetY
+        ) {
+
+            const status =
+                cleanValue(
+                    record.feedStatus
+                );
+
+            /*
+             * ปกติ
+             */
+
+            if (status === "ปกติ") {
+
+                createValue(
+                    page,
+                    "✓",
+                    147,
+                    442 + offsetY,
+                    "check"
+                );
+
+            }
+
+
+            /*
+             * ไม่ปกติ
+             */
+
+            if (status === "ไม่ปกติ") {
+
+                createValue(
+                    page,
+                    "✓",
+                    251,
+                    442 + offsetY,
+                    "check"
+                );
+
+            }
+
+        }
+
+
+        /*
+        ==========================================================
+        สร้างข้อมูล 1 Section
+        ==========================================================
+        */
+
+        function renderRecord(
+            page,
+            record,
+            offsetY
+        ) {
+
+            if (!record) {
+                return;
+            }
+
+
+            /*
+            ------------------------------------------------------
+            วัน/เดือน/ปี
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                formatThaiDate(record.date),
+                114.5,
+                99.5 + offsetY,
+                "small"
             );
 
 
-        document.getElementById(
-            "status"
-        ).textContent =
-            "FM-WT-68 พร้อมพิมพ์";
+            /*
+            ------------------------------------------------------
+            ตัวเลขก่อนฟีด A / B
+            ------------------------------------------------------
+            */
 
-    }
-);
+            createValue(
+                page,
+                record.preFeedA,
+                198.3,
+                99.5 + offsetY,
+                "number"
+            );
 
-</script>
+            createValue(
+                page,
+                record.preFeedB,
+                198.3,
+                115.8 + offsetY,
+                "number"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            ตัวเลขหลังฟีด A / B
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                record.postFeedA,
+                306.2,
+                99.5 + offsetY,
+                "number"
+            );
+
+            createValue(
+                page,
+                record.postFeedB,
+                306.2,
+                115.8 + offsetY,
+                "number"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            จำนวน Ton A / B
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                formatTon(record.quantityA),
+                386.5,
+                99.5 + offsetY,
+                "number"
+            );
+
+            createValue(
+                page,
+                formatTon(record.quantityB),
+                386.5,
+                115.8 + offsetY,
+                "number"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            รวม Ton
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                formatTon(record.totalQuantity),
+                386.5,
+                132.0 + offsetY,
+                "total"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            DCS สั่งตัก
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                record.dcsOrderTime,
+                500.5,
+                99.5 + offsetY,
+                "small"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            DCS สั่งหยุด
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                record.dcsStopTime,
+                500.5,
+                115.8 + offsetY,
+                "small"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            พนักงาน LS ด้านล่าง SILO
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                record.lsEmployeeCheck,
+                254.5,
+                376.0 + offsetY,
+                "employee"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            พนักงานคลังสินค้า ร่วมตรวจสอบ
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                record.warehouseEmployee,
+                254.5,
+                392.0 + offsetY,
+                "employee"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            Hopper A
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                record.hopperSugarA,
+                500.5,
+                376.0 + offsetY,
+                "number"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            Hopper B
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                record.hopperSugarB,
+                500.5,
+                392.0 + offsetY,
+                "number"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            สถานะ
+            ------------------------------------------------------
+            */
+
+            createStatus(
+                page,
+                record,
+                offsetY
+            );
+
+
+            /*
+            ------------------------------------------------------
+            หมายเหตุ
+            ------------------------------------------------------
+            */
+
+            createNotes(
+                page,
+                record.notes,
+                offsetY
+            );
+
+
+            /*
+            ------------------------------------------------------
+            ผู้บันทึก
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                record.recorderEmployee,
+                185,
+                498.5 + offsetY,
+                "employee"
+            );
+
+
+            /*
+            ------------------------------------------------------
+            ผู้ตรวจสอบ
+            ------------------------------------------------------
+            */
+
+            createValue(
+                page,
+                record.checkerEmployee,
+                468,
+                498.5 + offsetY,
+                "employee"
+            );
+
+        }
+
+
+        /*
+        ==========================================================
+        สร้างหน้าแบบฟอร์ม
+        ==========================================================
+        */
+
+        function renderPage(records) {
+
+            const container =
+                document.getElementById(
+                    "pageContainer"
+                );
+
+            container.innerHTML = "";
+
+
+            const page =
+                document.createElement("div");
+
+            page.className = "page";
+
+
+            /*
+            ------------------------------------------------------
+            รูปแบบฟอร์มต้นฉบับ
+            ------------------------------------------------------
+            */
+
+            const template =
+                document.createElement("img");
+
+            template.className =
+                "template";
+
+            template.src =
+                "FM-WT-68-template.png";
+
+            template.alt =
+                "FM-WT-68 Rev.01";
+
+
+            /*
+            ถ้าหาไฟล์ไม่เจอ
+            */
+
+            template.onerror = function () {
+
+                console.error(
+                    "ไม่พบไฟล์ FM-WT-68-template.png"
+                );
+
+                alert(
+                    "ไม่พบไฟล์ FM-WT-68-template.png\n\n" +
+                    "กรุณาตรวจสอบว่าไฟล์อยู่ในโฟลเดอร์เดียวกับ printForm.html"
+                );
+
+            };
+
+
+            page.appendChild(template);
+
+
+            /*
+            ------------------------------------------------------
+            Section 1
+            ------------------------------------------------------
+            */
+
+            if (records[0]) {
+
+                renderRecord(
+                    page,
+                    records[0],
+                    0
+                );
+
+            }
+
+
+            /*
+            ------------------------------------------------------
+            Section 2
+            ------------------------------------------------------
+            */
+
+            if (records[1]) {
+
+                renderRecord(
+                    page,
+                    records[1],
+                    454.65
+                );
+
+            }
+
+
+            /*
+            ------------------------------------------------------
+            Section 3
+            ------------------------------------------------------
+            */
+
+            if (records[2]) {
+
+                renderRecord(
+                    page,
+                    records[2],
+                    909.30
+                );
+
+            }
+
+
+            container.appendChild(page);
+
+        }
+
+
+        /*
+        ==========================================================
+        เริ่มต้น
+        ==========================================================
+        */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                const records =
+                    getRecords();
+
+                if (!records.length) {
+
+                    document.body.innerHTML = `
+                        <div class="empty-message">
+                            <div class="empty-box">
+                                <h2>
+                                    ไม่พบข้อมูลสำหรับพิมพ์
+                                </h2>
+
+                                <p>
+                                    กรุณากลับไปบันทึกข้อมูล
+                                    FM-WT-68 ก่อน
+                                </p>
+
+                                <button
+                                    type="button"
+                                    onclick="history.back()"
+                                    style="
+                                        border:0;
+                                        padding:10px 20px;
+                                        border-radius:8px;
+                                        background:#2563eb;
+                                        color:white;
+                                        font-weight:bold;
+                                        cursor:pointer;
+                                    "
+                                >
+                                    ← กลับ
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    return;
+
+                }
+
+
+                renderPage(records);
+
+            }
+        );
+
+    </script>
 
 </body>
 </html>
