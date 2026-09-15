@@ -78,11 +78,9 @@
     </style>
 </head>
 
-
 <body class="p-4 md:p-8">
 
     <datalist id="employeeNamesList"></datalist>
-
 
     <div class="max-w-4xl mx-auto">
 
@@ -95,9 +93,7 @@
             หน้าที่/ทั้งหมด ......./.......
         </p>
 
-
         <form id="hopperFeedForm" class="space-y-6">
-
 
             <!-- ==================================================
                  ข้อมูลการฟีด
@@ -109,9 +105,7 @@
                     ข้อมูลการฟีดและทั่วไป
                 </h2>
 
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
 
                     <div class="mb-4">
 
@@ -132,12 +126,9 @@
 
                     </div>
 
-
                     <div></div>
 
-
                     <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-
 
                         <!-- ก่อนฟีด -->
 
@@ -146,7 +137,6 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 ตัวเลขก่อนฟีด
                             </label>
-
 
                             <div class="flex items-center mb-2">
 
@@ -166,7 +156,6 @@
                                 >
 
                             </div>
-
 
                             <div class="flex items-center">
 
@@ -189,7 +178,6 @@
 
                         </div>
 
-
                         <!-- หลังฟีด -->
 
                         <div>
@@ -197,7 +185,6 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 ตัวเลขหลังฟีด
                             </label>
-
 
                             <div class="flex items-center mb-2">
 
@@ -217,7 +204,6 @@
                                 >
 
                             </div>
-
 
                             <div class="flex items-center">
 
@@ -242,11 +228,9 @@
 
                     </div>
 
-
                     <!-- ปริมาณ -->
 
                     <div class="md:col-span-2 mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-
 
                         <div>
 
@@ -267,7 +251,6 @@
 
                         </div>
 
-
                         <div>
 
                             <label
@@ -286,7 +269,6 @@
                             >
 
                         </div>
-
 
                         <div>
 
@@ -314,7 +296,6 @@
             </div>
 
 
-
             <!-- ==================================================
                  DCS
                  ================================================== -->
@@ -325,9 +306,7 @@
                     ข้อมูล DCS และปริมาณน้ำตาลคาถัง
                 </h2>
 
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
 
                     <div class="mb-4">
 
@@ -348,7 +327,6 @@
 
                     </div>
 
-
                     <div class="mb-4">
 
                         <label
@@ -367,7 +345,6 @@
                         >
 
                     </div>
-
 
                     <div class="mb-4">
 
@@ -390,7 +367,6 @@
                         >
 
                     </div>
-
 
                     <div class="mb-4">
 
@@ -419,7 +395,6 @@
             </div>
 
 
-
             <!-- ==================================================
                  พนักงาน
                  ================================================== -->
@@ -429,7 +404,6 @@
                 <h2 class="text-blue-heading">
                     ข้อมูลพนักงาน
                 </h2>
-
 
                 <div class="mb-4">
 
@@ -451,7 +425,6 @@
                     >
 
                 </div>
-
 
                 <div class="mb-4">
 
@@ -477,7 +450,6 @@
             </div>
 
 
-
             <!-- ==================================================
                  สถานะ
                  ================================================== -->
@@ -488,9 +460,7 @@
                     สถานะและหมายเหตุ
                 </h2>
 
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
 
                     <div class="mb-4">
 
@@ -498,7 +468,7 @@
                             for="feedStatus"
                             class="block text-sm font-medium text-gray-700 mb-1"
                         >
-                            การฟีคครั้งนี้
+                            การฟีดครั้งนี้
                         </label>
 
                         <select
@@ -520,9 +490,7 @@
 
                     </div>
 
-
                     <div></div>
-
 
                     <div class="md:col-span-2 mb-4">
 
@@ -548,7 +516,6 @@
             </div>
 
 
-
             <!-- ==================================================
                  ผู้รับรอง
                  ================================================== -->
@@ -559,9 +526,7 @@
                     ผู้รับรอง
                 </h2>
 
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
 
                     <div class="mb-4">
 
@@ -583,7 +548,6 @@
                         >
 
                     </div>
-
 
                     <div class="mb-4">
 
@@ -611,7 +575,6 @@
             </div>
 
 
-
             <!-- ==================================================
                  ปุ่มบันทึก
                  ================================================== -->
@@ -624,13 +587,11 @@
                 บันทึกข้อมูล
             </button>
 
-
             <div
                 id="messageBox"
                 class="hidden mt-4 p-4 rounded-lg text-center"
                 role="alert"
             ></div>
-
 
             <div
                 id="loadingIndicator"
@@ -639,17 +600,14 @@
                 กำลังดำเนินการ...
             </div>
 
-
         </form>
 
     </div>
 
 
-
 <script>
 
 document.addEventListener('DOMContentLoaded', function() {
-
 
     // ========================================================
     // Elements
@@ -673,10 +631,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkerEmployeeInput =
         document.getElementById('checkerEmployee');
 
-
     const employeeNamesDatalist =
         document.getElementById('employeeNamesList');
-
 
     const preFeedAInput =
         document.getElementById('preFeedA');
@@ -699,13 +655,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalQuantityInput =
         document.getElementById('totalQuantity');
 
-
     const dcsOrderTimeInput =
         document.getElementById('dcsOrderTime');
 
     const dcsStopTimeInput =
         document.getElementById('dcsStopTime');
-
 
     const hopperSugarAInput =
         document.getElementById('hopperSugarA');
@@ -713,13 +667,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const hopperSugarBInput =
         document.getElementById('hopperSugarB');
 
-
     const feedStatusSelect =
         document.getElementById('feedStatus');
 
     const notesInput =
         document.getElementById('notes');
-
 
     const saveButton =
         document.getElementById('saveButton');
@@ -731,7 +683,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('loadingIndicator');
 
 
-
     // ========================================================
     // Google Apps Script URL
     // ========================================================
@@ -740,25 +691,17 @@ document.addEventListener('DOMContentLoaded', function() {
         'https://script.google.com/macros/s/AKfycbxsVQEbYlJpQVkhp3hk28eshjkvrbDI3MfeQV2heilRFMhw4MsvKeiFq3Oxg7gLnTJk/exec';
 
 
-
     // ========================================================
     // รายชื่อพนักงาน
     // ========================================================
 
     const PREDEFINED_EMPLOYEES = [
-
         'นายสุชาติ เหมือนฤทธิ์',
-
         'นายดนัย แก้วฉนวน',
-
         'นายสายัณห์ สีมันตะ',
-
         'นางสาวนวพร เอี่ยมไพรบูลย์',
-
         'นางกาญจนา วงษ์มณี'
-
     ];
-
 
 
     // ========================================================
@@ -781,7 +724,6 @@ document.addEventListener('DOMContentLoaded', function() {
         'ktisLastCheckerEmployee';
 
 
-
     // ========================================================
     // แสดงข้อความ
     // ========================================================
@@ -790,7 +732,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         messageBox.textContent =
             message;
-
 
         messageBox.classList.remove(
             'hidden',
@@ -802,7 +743,6 @@ document.addEventListener('DOMContentLoaded', function() {
             'text-blue-800'
         );
 
-
         if (type === 'success') {
 
             messageBox.classList.add(
@@ -810,25 +750,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 'text-green-800'
             );
 
-        }
-
-        else if (type === 'error') {
+        } else if (type === 'error') {
 
             messageBox.classList.add(
                 'bg-red-100',
                 'text-red-800'
             );
 
-        }
-
-        else {
+        } else {
 
             messageBox.classList.add(
                 'bg-blue-100',
                 'text-blue-800'
             );
         }
-
 
         setTimeout(function() {
 
@@ -838,7 +773,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         }, 5000);
     }
-
 
 
     // ========================================================
@@ -854,14 +788,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-
         let storedEmployees =
             JSON.parse(
                 localStorage.getItem(
                     LOCAL_STORAGE_KEY_EMPLOYEES
                 )
             ) || [];
-
 
         const allEmployees =
             [
@@ -873,9 +805,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 )
             ];
 
-
         employeeNamesDatalist.innerHTML = '';
-
 
         allEmployees.forEach(function(employee) {
 
@@ -888,15 +818,12 @@ document.addEventListener('DOMContentLoaded', function() {
             employeeNamesDatalist.appendChild(
                 option
             );
-
         });
-
 
         const lastEmployee =
             localStorage.getItem(
                 localStorageKeyForLastValue
             );
-
 
         if (lastEmployee) {
 
@@ -904,7 +831,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 lastEmployee;
         }
     }
-
 
 
     // ========================================================
@@ -924,14 +850,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-
         let storedEmployees =
             JSON.parse(
                 localStorage.getItem(
                     LOCAL_STORAGE_KEY_EMPLOYEES
                 )
             ) || [];
-
 
         if (
             !storedEmployees.includes(
@@ -943,7 +867,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 employeeName
             );
 
-
             localStorage.setItem(
                 LOCAL_STORAGE_KEY_EMPLOYEES,
                 JSON.stringify(
@@ -952,7 +875,6 @@ document.addEventListener('DOMContentLoaded', function() {
             );
         }
     }
-
 
 
     // ========================================================
@@ -974,10 +896,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 date.getDate()
             ).padStart(2, '0');
 
-
         return `${year}-${month}-${day}`;
     }
-
 
 
     // ========================================================
@@ -996,10 +916,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 date.getMinutes()
             ).padStart(2, '0');
 
-
         return `${hours}:${minutes}`;
     }
-
 
 
     // ========================================================
@@ -1020,39 +938,28 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-
         const preA =
             parseFloat(
                 preFeedAInput.value
             ) || 0;
-
 
         const postA =
             parseFloat(
                 postFeedAInput.value
             ) || 0;
 
-
         const preB =
             parseFloat(
                 preFeedBInput.value
             ) || 0;
-
 
         const postB =
             parseFloat(
                 postFeedBInput.value
             ) || 0;
 
-
         let quantityA = 0;
-
         let quantityB = 0;
-
-
-        // ----------------------------------------------------
-        // Hopper A
-        // ----------------------------------------------------
 
         if (postA >= preA) {
 
@@ -1069,11 +976,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 ) / 1000;
         }
 
-
-        // ----------------------------------------------------
-        // Hopper B
-        // ----------------------------------------------------
-
         if (postB >= preB) {
 
             quantityB =
@@ -1089,7 +991,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 ) / 1000;
         }
 
-
         quantityAInput.value =
             quantityA.toFixed(3);
 
@@ -1104,7 +1005,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-
     // ========================================================
     // ตั้งค่าวันที่และเวลา
     // ========================================================
@@ -1112,18 +1012,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const now =
         new Date();
 
-
     dateInput.value =
         getFormattedDate(now);
-
 
     dcsOrderTimeInput.value =
         getFormattedTime(now);
 
-
     dcsStopTimeInput.value =
         getFormattedTime(now);
-
 
 
     // ========================================================
@@ -1151,7 +1047,6 @@ document.addEventListener('DOMContentLoaded', function() {
     );
 
 
-
     // ========================================================
     // จำชื่อพนักงาน
     // ========================================================
@@ -1174,7 +1069,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     );
 
-
     warehouseEmployeeInput.addEventListener(
         'change',
         function() {
@@ -1193,7 +1087,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     );
 
-
     lsEmployeeCheckInput.addEventListener(
         'change',
         function() {
@@ -1211,7 +1104,6 @@ document.addEventListener('DOMContentLoaded', function() {
             );
         }
     );
-
 
     checkerEmployeeInput.addEventListener(
         'change',
@@ -1232,7 +1124,6 @@ document.addEventListener('DOMContentLoaded', function() {
     );
 
 
-
     // ========================================================
     // คำนวณเมื่อกรอกเลขหลังฟีด
     // ========================================================
@@ -1242,16 +1133,14 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateQuantities
     );
 
-
     postFeedBInput.addEventListener(
         'input',
         calculateQuantities
     );
 
 
-
     // ========================================================
-    // ⭐ ดึงเลขก่อนฟีดด้วย JSONP
+    // ⭐ ดึงเลขก่อนฟีดจาก Google Apps Script
     // ========================================================
 
     function fetchLastReadings() {
@@ -1259,175 +1148,29 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingIndicator.textContent =
             'กำลังดึงข้อมูลตัวเลขก่อนฟีด...';
 
-
         loadingIndicator.classList.remove(
             'hidden'
         );
-
 
         const callbackName =
             'hopperFeedCallback_' +
             Date.now();
 
-
         let finished = false;
 
-
-        // ----------------------------------------------------
-        // Callback ที่ Google Apps Script จะเรียก
-        // ----------------------------------------------------
-
-        window[callbackName] =
-            function(data) {
-
-                if (finished) {
-                    return;
-                }
-
-                finished = true;
+        const script =
+            document.createElement('script');
 
 
-                try {
-
-                    console.log(
-                        'ข้อมูลก่อนฟีดที่ได้รับ:',
-                        data
-                    );
-
-
-                    // ------------------------------
-                    // Hopper A
-                    // ------------------------------
-
-                    if (
-                        data &&
-                        data.preFeedA !== undefined &&
-                        data.preFeedA !== null
-                    ) {
-
-                        preFeedAInput.value =
-                            data.preFeedA;
-
-                    } else {
-
-                        preFeedAInput.value =
-                            '00000000';
-                    }
-
-
-                    // ------------------------------
-                    // Hopper B
-                    // ------------------------------
-
-                    if (
-                        data &&
-                        data.preFeedB !== undefined &&
-                        data.preFeedB !== null
-                    ) {
-
-                        preFeedBInput.value =
-                            data.preFeedB;
-
-                    } else {
-
-                        preFeedBInput.value =
-                            '00000000';
-                    }
-
-
-                    calculateQuantities();
-
-
-                    showMessage(
-                        'ดึงข้อมูลตัวเลขก่อนฟีดสำเร็จแล้ว',
-                        'success'
-                    );
-
-
-                } catch (error) {
-
-                    console.error(
-                        'เกิดข้อผิดพลาดในการประมวลผลข้อมูล:',
-                        error
-                    );
-
-
-                    preFeedAInput.value =
-                        '00000000';
-
-                    preFeedBInput.value =
-                        '00000000';
-
-
-                    calculateQuantities();
-
-
-                    showMessage(
-                        'เกิดข้อผิดพลาดในการอ่านข้อมูล: ' +
-                        error.message,
-                        'error'
-                    );
-
-                }
-
-
-                cleanup();
-            };
-
-
-
-        // ----------------------------------------------------
-        // กรณีโหลด Google Apps Script ไม่สำเร็จ
-        // ----------------------------------------------------
-
-        function handleError() {
-
-            if (finished) {
-                return;
-            }
-
-            finished = true;
-
-
-            console.error(
-                'ไม่สามารถเชื่อมต่อ Google Apps Script ได้'
-            );
-
-
-            preFeedAInput.value =
-                '00000000';
-
-            preFeedBInput.value =
-                '00000000';
-
-
-            calculateQuantities();
-
-
-            showMessage(
-                'ไม่สามารถดึงข้อมูลตัวเลขก่อนฟีดจาก Google Sheet ได้',
-                'error'
-            );
-
-
-            cleanup();
-        }
-
-
-
-        // ----------------------------------------------------
-        // ล้าง Script / Callback
-        // ----------------------------------------------------
+        // ====================================================
+        // ล้าง callback / script
+        // ====================================================
 
         function cleanup() {
 
             loadingIndicator.classList.add(
                 'hidden'
             );
-
-
-            delete window[callbackName];
-
 
             if (
                 script &&
@@ -1438,29 +1181,151 @@ document.addEventListener('DOMContentLoaded', function() {
                     script
                 );
             }
+
+            try {
+
+                delete window[callbackName];
+
+            } catch (e) {
+
+                window[callbackName] =
+                    undefined;
+            }
         }
 
 
+        // ====================================================
+        // รับข้อมูลจาก Google Apps Script
+        // ====================================================
 
-        // ----------------------------------------------------
-        // สร้าง Script สำหรับ JSONP
-        // ----------------------------------------------------
+        window[callbackName] =
+            function(data) {
 
-        const script =
-            document.createElement('script');
+                if (finished) {
+                    return;
+                }
+
+                finished = true;
+
+                console.log(
+                    'Google Apps Script ส่งข้อมูลกลับมา:',
+                    data
+                );
 
 
-        script.src =
+                if (
+                    data &&
+                    data.preFeedA !== undefined &&
+                    data.preFeedB !== undefined
+                ) {
+
+                    preFeedAInput.value =
+                        String(
+                            data.preFeedA
+                        );
+
+                    preFeedBInput.value =
+                        String(
+                            data.preFeedB
+                        );
+
+                    calculateQuantities();
+
+                    showMessage(
+                        'ดึงข้อมูลตัวเลขก่อนฟีดสำเร็จแล้ว',
+                        'success'
+                    );
+
+                } else {
+
+                    showMessage(
+                        'Google Sheet ไม่ส่งข้อมูลตัวเลขก่อนฟีดกลับมา',
+                        'error'
+                    );
+                }
+
+                cleanup();
+            };
+
+
+        // ====================================================
+        // กรณี Script โหลดไม่ได้
+        // ====================================================
+
+        script.onerror =
+            function() {
+
+                if (finished) {
+                    return;
+                }
+
+                finished = true;
+
+                console.error(
+                    'ไม่สามารถโหลด Google Apps Script ได้'
+                );
+
+                showMessage(
+                    'ไม่สามารถเชื่อมต่อ Google Apps Script ได้',
+                    'error'
+                );
+
+                cleanup();
+            };
+
+
+        // ====================================================
+        // Timeout 15 วินาที
+        // ====================================================
+
+        setTimeout(
+            function() {
+
+                if (finished) {
+                    return;
+                }
+
+                finished = true;
+
+                console.error(
+                    'หมดเวลารอ Google Apps Script'
+                );
+
+                showMessage(
+                    'Google Sheet ตอบกลับช้า กรุณาลองรีเฟรชหน้าเว็บ',
+                    'error'
+                );
+
+                cleanup();
+
+            },
+            15000
+        );
+
+
+        // ====================================================
+        // สร้าง URL
+        // ====================================================
+
+        const requestUrl =
             GOOGLE_APPS_SCRIPT_URL +
             '?action=get_last_readings' +
             '&callback=' +
             encodeURIComponent(
                 callbackName
-            );
+            ) +
+            '&t=' +
+            Date.now();
 
 
-        script.onerror =
-            handleError;
+        console.log(
+            'กำลังเรียก Google Apps Script:',
+            requestUrl
+        );
+
+
+        script.src =
+            requestUrl;
 
 
         document.body.appendChild(
@@ -1469,13 +1334,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-
     // ========================================================
     // เรียกดึงข้อมูลเมื่อเปิดหน้าเว็บ
     // ========================================================
 
     fetchLastReadings();
-
 
 
     // ========================================================
@@ -1488,19 +1351,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
             event.preventDefault();
 
-
             saveButton.disabled =
                 true;
-
 
             loadingIndicator.textContent =
                 'กำลังบันทึกข้อมูล...';
 
-
             loadingIndicator.classList.remove(
                 'hidden'
             );
-
 
             messageBox.classList.add(
                 'hidden'
@@ -1575,7 +1434,6 @@ document.addEventListener('DOMContentLoaded', function() {
             );
 
 
-
             try {
 
                 // ------------------------------------------------
@@ -1622,18 +1480,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const nowAfterSubmit =
                     new Date();
 
-
                 dateInput.value =
                     getFormattedDate(
                         nowAfterSubmit
                     );
 
-
                 dcsOrderTimeInput.value =
                     getFormattedTime(
                         nowAfterSubmit
                     );
-
 
                 dcsStopTimeInput.value =
                     getFormattedTime(
@@ -1642,11 +1497,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
                 // ------------------------------------------------
-                // ⭐ ดึงเลขหลังฟีดล่าสุด
+                // ดึงเลขหลังฟีดล่าสุด
                 // มาเป็นเลขก่อนฟีดรอบใหม่
                 // ------------------------------------------------
 
-                fetchLastReadings();
+                setTimeout(
+                    function() {
+
+                        fetchLastReadings();
+
+                    },
+                    1000
+                );
 
 
                 // ------------------------------------------------
@@ -1658,18 +1520,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     LOCAL_STORAGE_KEY_LAST_RECORDER
                 );
 
-
                 updateDatalist(
                     warehouseEmployeeInput,
                     LOCAL_STORAGE_KEY_LAST_WAREHOUSE
                 );
 
-
                 updateDatalist(
                     lsEmployeeCheckInput,
                     LOCAL_STORAGE_KEY_LAST_LS_CHECK
                 );
-
 
                 updateDatalist(
                     checkerEmployeeInput,
@@ -1683,7 +1542,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Error submitting form:',
                     error
                 );
-
 
                 showMessage(
                     'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' +
