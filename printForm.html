@@ -4,667 +4,511 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>FM-WT-68 - พิมพ์แบบฟอร์ม</title>
+<title>FM-WT-68</title>
 
 <style>
+@page {
+    size: Letter portrait;
+    margin: 0;
+}
 
-    @page {
-        size: Letter portrait;
-        margin: 0;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    * {
-        box-sizing: border-box;
-    }
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #ddd;
+}
+
+.toolbar {
+    width: 8.5in;
+    margin: 15px auto;
+    text-align: center;
+}
+
+.toolbar button {
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    margin: 0 5px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.btn-print {
+    background: #166534;
+    color: white;
+}
+
+.btn-close {
+    background: #555;
+    color: white;
+}
+
+.status {
+    width: 8.5in;
+    margin: 10px auto;
+    padding: 8px;
+    background: white;
+    text-align: center;
+    border-radius: 5px;
+    font-family: Tahoma, sans-serif;
+}
+
+
+/* =====================================================
+   กระดาษ Letter
+   ===================================================== */
+
+.page {
+    position: relative;
+
+    width: 8.5in;
+    height: 11in;
+
+    margin: 0 auto 30px;
+
+    background-image: url("FM-WT-68-template.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+
+    background-color: white;
+
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   ข้อมูลที่ Overlay
+   ===================================================== */
+
+.field {
+    position: absolute;
+
+    font-family:
+        "TH Sarabun New",
+        "Sarabun",
+        Tahoma,
+        Arial,
+        sans-serif;
+
+    font-size: 11pt;
+
+    color: #000;
+
+    line-height: 1;
+
+    white-space: nowrap;
+
+    text-align: center;
+
+    pointer-events: none;
+}
+
+
+/* =====================================================
+   ส่วนที่ 1
+   ===================================================== */
+
+.s1-date {
+    left: 10.5%;
+    top: 6.15%;
+    width: 13%;
+}
+
+.s1-pre-a {
+    left: 27.5%;
+    top: 9.25%;
+    width: 13%;
+}
+
+.s1-pre-b {
+    left: 27.5%;
+    top: 11.35%;
+    width: 13%;
+}
+
+.s1-post-a {
+    left: 42.5%;
+    top: 9.25%;
+    width: 13%;
+}
+
+.s1-post-b {
+    left: 42.5%;
+    top: 11.35%;
+    width: 13%;
+}
+
+.s1-qty-a {
+    left: 57.5%;
+    top: 9.25%;
+    width: 10%;
+}
+
+.s1-qty-b {
+    left: 57.5%;
+    top: 11.35%;
+    width: 10%;
+}
+
+.s1-total {
+    left: 57%;
+    top: 13.55%;
+    width: 11%;
+}
+
+.s1-order {
+    left: 81%;
+    top: 9.25%;
+    width: 14%;
+}
+
+.s1-stop {
+    left: 81%;
+    top: 11.35%;
+    width: 14%;
+}
+
+.s1-ls {
+    left: 29%;
+    top: 23.15%;
+    width: 25%;
+}
+
+.s1-warehouse {
+    left: 29%;
+    top: 25.15%;
+    width: 25%;
+}
+
+.s1-hopper-a {
+    left: 73%;
+    top: 23.15%;
+    width: 17%;
+}
+
+.s1-hopper-b {
+    left: 73%;
+    top: 25.15%;
+    width: 17%;
+}
+
+.s1-normal {
+    left: 22.8%;
+    top: 28.0%;
+}
+
+.s1-abnormal {
+    left: 50%;
+    top: 28.0%;
+}
+
+.s1-note {
+    left: 54%;
+    top: 29.5%;
+    width: 40%;
+    height: 7%;
+    text-align: left;
+    white-space: normal;
+    line-height: 1.15;
+}
+
+.s1-recorder {
+    left: 20%;
+    top: 40.0%;
+    width: 23%;
+}
+
+.s1-checker {
+    left: 63%;
+    top: 40.0%;
+    width: 23%;
+}
+
+
+/* =====================================================
+   ส่วนที่ 2
+   ===================================================== */
+
+.s2-date {
+    left: 10.5%;
+    top: 44.8%;
+    width: 13%;
+}
+
+.s2-pre-a {
+    left: 27.5%;
+    top: 47.9%;
+    width: 13%;
+}
+
+.s2-pre-b {
+    left: 27.5%;
+    top: 50.0%;
+    width: 13%;
+}
+
+.s2-post-a {
+    left: 42.5%;
+    top: 47.9%;
+    width: 13%;
+}
+
+.s2-post-b {
+    left: 42.5%;
+    top: 50.0%;
+    width: 13%;
+}
+
+.s2-qty-a {
+    left: 57.5%;
+    top: 47.9%;
+    width: 10%;
+}
+
+.s2-qty-b {
+    left: 57.5%;
+    top: 50.0%;
+    width: 10%;
+}
+
+.s2-total {
+    left: 57%;
+    top: 52.2%;
+    width: 11%;
+}
+
+.s2-order {
+    left: 81%;
+    top: 47.9%;
+    width: 14%;
+}
+
+.s2-stop {
+    left: 81%;
+    top: 50.0%;
+    width: 14%;
+}
+
+.s2-ls {
+    left: 29%;
+    top: 61.8%;
+    width: 25%;
+}
+
+.s2-warehouse {
+    left: 29%;
+    top: 63.8%;
+    width: 25%;
+}
+
+.s2-hopper-a {
+    left: 73%;
+    top: 61.8%;
+    width: 17%;
+}
+
+.s2-hopper-b {
+    left: 73%;
+    top: 63.8%;
+    width: 17%;
+}
+
+.s2-normal {
+    left: 22.8%;
+    top: 66.65%;
+}
+
+.s2-abnormal {
+    left: 50%;
+    top: 66.65%;
+}
+
+.s2-note {
+    left: 54%;
+    top: 68.15%;
+    width: 40%;
+    height: 7%;
+    text-align: left;
+    white-space: normal;
+    line-height: 1.15;
+}
+
+.s2-recorder {
+    left: 20%;
+    top: 78.65%;
+    width: 23%;
+}
+
+.s2-checker {
+    left: 63%;
+    top: 78.65%;
+    width: 23%;
+}
+
+
+/* =====================================================
+   ส่วนที่ 3
+   ===================================================== */
+
+.s3-date {
+    left: 10.5%;
+    top: 83.45%;
+    width: 13%;
+}
+
+.s3-pre-a {
+    left: 27.5%;
+    top: 86.55%;
+    width: 13%;
+}
+
+.s3-pre-b {
+    left: 27.5%;
+    top: 88.65%;
+    width: 13%;
+}
+
+.s3-post-a {
+    left: 42.5%;
+    top: 86.55%;
+    width: 13%;
+}
+
+.s3-post-b {
+    left: 42.5%;
+    top: 88.65%;
+    width: 13%;
+}
+
+.s3-qty-a {
+    left: 57.5%;
+    top: 86.55%;
+    width: 10%;
+}
+
+.s3-qty-b {
+    left: 57.5%;
+    top: 88.65%;
+    width: 10%;
+}
+
+.s3-total {
+    left: 57%;
+    top: 90.85%;
+    width: 11%;
+}
+
+.s3-order {
+    left: 81%;
+    top: 86.55%;
+    width: 14%;
+}
+
+.s3-stop {
+    left: 81%;
+    top: 88.65%;
+    width: 14%;
+}
+
+.s3-ls {
+    left: 29%;
+    top: 100.45%;
+    width: 25%;
+}
+
+.s3-warehouse {
+    left: 29%;
+    top: 102.45%;
+    width: 25%;
+}
+
+.s3-hopper-a {
+    left: 73%;
+    top: 100.45%;
+    width: 17%;
+}
+
+.s3-hopper-b {
+    left: 73%;
+    top: 102.45%;
+    width: 17%;
+}
+
+.s3-normal {
+    left: 22.8%;
+    top: 105.3%;
+}
+
+.s3-abnormal {
+    left: 50%;
+    top: 105.3%;
+}
+
+.s3-note {
+    left: 54%;
+    top: 106.8%;
+    width: 40%;
+    height: 7%;
+    text-align: left;
+    white-space: normal;
+    line-height: 1.15;
+}
+
+.s3-recorder {
+    left: 20%;
+    top: 117.3%;
+    width: 23%;
+}
+
+.s3-checker {
+    left: 63%;
+    top: 117.3%;
+    width: 23%;
+}
+
+
+/* =====================================================
+   เครื่องหมายถูก
+   ===================================================== */
+
+.check {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   PRINT
+   ===================================================== */
+
+@media print {
 
     html,
     body {
-        margin: 0;
-        padding: 0;
-        background: #eeeeee;
-        font-family: Arial, Tahoma, sans-serif;
-    }
-
-    /* =========================
-       หน้ากระดาษจริง Letter
-       8.5 x 11 นิ้ว
-       ========================= */
-    .page {
-        position: relative;
-
         width: 8.5in;
         height: 11in;
-
-        margin: 20px auto;
-
-        background-image: url("FM-WT-68-template.png");
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
-
-        overflow: hidden;
-    }
-
-
-    /* =========================
-       ข้อความที่จะเขียนลงแบบฟอร์ม
-       ========================= */
-
-    .field {
-        position: absolute;
-
-        color: #000;
-
-        font-family:
-            "TH Sarabun New",
-            "Sarabun",
-            Tahoma,
-            Arial,
-            sans-serif;
-
-        font-size: 11pt;
-
-        line-height: 1;
-
-        white-space: nowrap;
-
-        pointer-events: none;
-    }
-
-
-    .center {
-        text-align: center;
-    }
-
-    .right {
-        text-align: right;
-    }
-
-
-    /* =========================
-       ช่องติ๊ก
-       ========================= */
-
-    .checkbox {
-        position: absolute;
-
-        width: 13px;
-        height: 13px;
-
-        border: 1.3px solid #000;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        font-family: Arial, sans-serif;
-
-        font-size: 12px;
-
-        line-height: 1;
-
-        pointer-events: none;
-    }
-
-
-    /* =========================
-       ปุ่มควบคุม
-       ========================= */
-
-    .toolbar {
-        width: 8.5in;
-
-        margin: 20px auto 10px;
-
-        display: flex;
-
-        gap: 10px;
-
-        justify-content: center;
-
-        align-items: center;
-    }
-
-    .toolbar button {
-        border: 0;
-
-        border-radius: 8px;
-
-        padding: 10px 18px;
-
-        font-size: 15px;
-
-        cursor: pointer;
-
-        background: #2563eb;
-
-        color: white;
-    }
-
-    .toolbar button.secondary {
-        background: #555;
-    }
-
-    .toolbar button:hover {
-        opacity: 0.85;
-    }
-
-
-    /* =========================
-       ข้อความแจ้งเตือน
-       ========================= */
-
-    #status {
-        width: 8.5in;
-
-        margin: 10px auto;
-
-        padding: 10px;
-
+        margin: 0;
+        padding: 0;
         background: white;
-
-        border-radius: 8px;
-
-        text-align: center;
-
-        font-size: 14px;
-    }
-
-
-    /* =========================================================
-       ตำแหน่งข้อมูล
-       =========================================================
-
-       ระบบใช้ตำแหน่งเป็น %
-
-       อ้างอิงจากแบบฟอร์ม FM-WT-68 ต้นฉบับ
-       ========================================================= */
-
-
-    /* =========================================================
-       SECTION
-       ========================================================= */
-
-    .s1 {}
-    .s2 {}
-    .s3 {}
-
-
-    /* =========================
-       วันที่
-       ========================= */
-
-    .date {
-        left: 14.5%;
-        width: 8.8%;
-
-        text-align: center;
-    }
-
-    .date.s1 {
-        top: 10.0%;
-    }
-
-    .date.s2 {
-        top: 67.0%;
-    }
-
-    .date.s3 {
-        top: 118.0%;
-    }
-
-
-    /* =========================
-       ตัวเลขก่อนฟีด A / B
-       ========================= */
-
-    .preA,
-    .preB {
-        width: 13.5%;
-
-        text-align: center;
-    }
-
-    .preA.s1,
-    .postA.s1 {
-        top: 12.55%;
-    }
-
-    .preB.s1,
-    .postB.s1 {
-        top: 14.65%;
-    }
-
-    .preA.s2,
-    .postA.s2 {
-        top: 67.55%;
-    }
-
-    .preB.s2,
-    .postB.s2 {
-        top: 69.65%;
-    }
-
-    .preA.s3,
-    .postA.s3 {
-        top: 119.55%;
-    }
-
-    .preB.s3,
-    .postB.s3 {
-        top: 121.65%;
-    }
-
-
-    .preA {
-        left: 27.5%;
-    }
-
-    .preB {
-        left: 27.5%;
-    }
-
-
-    /* =========================
-       ตัวเลขหลังฟีด
-       ========================= */
-
-    .postA,
-    .postB {
-        left: 42.0%;
-        width: 15.5%;
-
-        text-align: center;
-    }
-
-
-    /* =========================
-       จำนวน Ton
-       ========================= */
-
-    .qtyA,
-    .qtyB {
-        left: 58.0%;
-        width: 10.0%;
-
-        text-align: center;
-    }
-
-    .qtyA.s1 {
-        top: 12.55%;
-    }
-
-    .qtyB.s1 {
-        top: 14.65%;
-    }
-
-    .qtyA.s2 {
-        top: 67.55%;
-    }
-
-    .qtyB.s2 {
-        top: 69.65%;
-    }
-
-    .qtyA.s3 {
-        top: 119.55%;
-    }
-
-    .qtyB.s3 {
-        top: 121.65%;
-    }
-
-
-    /* =========================
-       รวม
-       ========================= */
-
-    .total {
-        left: 57.0%;
-        width: 11.0%;
-
-        text-align: center;
-    }
-
-    .total.s1 {
-        top: 16.8%;
-    }
-
-    .total.s2 {
-        top: 71.8%;
-    }
-
-    .total.s3 {
-        top: 123.8%;
-    }
-
-
-    /* =========================
-       DCS สั่งตัก
-       ========================= */
-
-    .dcsOrder {
-        left: 82.2%;
-        width: 12.0%;
-
-        text-align: center;
-    }
-
-    .dcsOrder.s1 {
-        top: 12.55%;
-    }
-
-    .dcsOrder.s2 {
-        top: 67.55%;
-    }
-
-    .dcsOrder.s3 {
-        top: 119.55%;
-    }
-
-
-    /* =========================
-       DCS สั่งหยุด
-       ========================= */
-
-    .dcsStop {
-        left: 82.2%;
-        width: 12.0%;
-
-        text-align: center;
-    }
-
-    .dcsStop.s1 {
-        top: 14.65%;
-    }
-
-    .dcsStop.s2 {
-        top: 69.65%;
-    }
-
-    .dcsStop.s3 {
-        top: 121.65%;
-    }
-
-
-    /* =========================
-       พนักงาน LS
-       ========================= */
-
-    .lsEmployee {
-        left: 33.5%;
-        width: 18.0%;
-
-        text-align: center;
-    }
-
-    .lsEmployee.s1 {
-        top: 31.5%;
-    }
-
-    .lsEmployee.s2 {
-        top: 86.5%;
-    }
-
-    .lsEmployee.s3 {
-        top: 138.5%;
     }
 
-
-    /* =========================
-       พนักงานคลัง
-       ========================= */
-
-    .warehouseEmployee {
-        left: 33.5%;
-        width: 18.0%;
-
-        text-align: center;
-    }
-
-    .warehouseEmployee.s1 {
-        top: 33.55%;
-    }
-
-    .warehouseEmployee.s2 {
-        top: 88.55%;
-    }
-
-    .warehouseEmployee.s3 {
-        top: 140.55%;
-    }
-
-
-    /* =========================
-       Hopper A
-       ========================= */
-
-    .hopperA {
-        left: 75.0%;
-        width: 12.0%;
-
-        text-align: center;
-    }
-
-    .hopperA.s1 {
-        top: 31.5%;
-    }
-
-    .hopperA.s2 {
-        top: 86.5%;
-    }
-
-    .hopperA.s3 {
-        top: 138.5%;
-    }
-
-
-    /* =========================
-       Hopper B
-       ========================= */
-
-    .hopperB {
-        left: 75.0%;
-        width: 12.0%;
-
-        text-align: center;
-    }
-
-    .hopperB.s1 {
-        top: 33.55%;
-    }
-
-    .hopperB.s2 {
-        top: 88.55%;
-    }
-
-    .hopperB.s3 {
-        top: 140.55%;
-    }
-
-
-    /* =========================
-       สถานะปกติ
-       ========================= */
-
-    .normal {
-        left: 23.3%;
-    }
-
-    .normal.s1 {
-        top: 38.8%;
-    }
-
-    .normal.s2 {
-        top: 93.8%;
-    }
-
-    .normal.s3 {
-        top: 145.8%;
-    }
-
-
-    /* =========================
-       สถานะไม่ปกติ
-       ========================= */
-
-    .abnormal {
-        left: 50.0%;
-    }
-
-    .abnormal.s1 {
-        top: 38.8%;
-    }
-
-    .abnormal.s2 {
-        top: 93.8%;
-    }
-
-    .abnormal.s3 {
-        top: 145.8%;
-    }
-
-
-    /* =========================
-       หมายเหตุ
-       ========================= */
-
-    .note {
-        position: absolute;
-
-        left: 53.5%;
-
-        width: 40.0%;
-
-        font-family:
-            "TH Sarabun New",
-            "Sarabun",
-            Tahoma,
-            Arial,
-            sans-serif;
-
-        font-size: 10pt;
-
-        line-height: 1.15;
-
-        white-space: normal;
-
-        word-break: break-word;
-
-        overflow: hidden;
-    }
-
-    .note.s1 {
-        top: 40.5%;
-
-        height: 8.0%;
-    }
-
-    .note.s2 {
-        top: 95.5%;
-
-        height: 8.0%;
-    }
-
-    .note.s3 {
-        top: 147.5%;
-
-        height: 8.0%;
-    }
-
-
-    /* =========================
-       ผู้บันทึก
-       ========================= */
-
-    .recorder {
-        left: 23.0%;
-
-        width: 17.0%;
-
-        text-align: center;
-    }
-
-    .recorder.s1 {
-        top: 54.0%;
-    }
-
-    .recorder.s2 {
-        top: 109.0%;
+    .toolbar,
+    .status {
+        display: none !important;
     }
-
-    .recorder.s3 {
-        top: 161.0%;
-    }
-
-
-    /* =========================
-       ผู้ตรวจสอบ
-       ========================= */
-
-    .checker {
-        left: 64.0%;
-
-        width: 17.0%;
-
-        text-align: center;
-    }
-
-    .checker.s1 {
-        top: 54.0%;
-    }
-
-    .checker.s2 {
-        top: 109.0%;
-    }
-
-    .checker.s3 {
-        top: 161.0%;
-    }
-
-
-    /* =========================================================
-       ป้องกันข้อมูล Section 2/3 ล้นหน้า
-       ========================================================= */
-
-    .s2,
-    .s3 {
-        /* เปิดใช้งานเมื่อมีข้อมูล */
-    }
-
-
-    /* =========================================================
-       PRINT
-       ========================================================= */
-
-    @media print {
-
-        html,
-        body {
-            width: 8.5in;
-            height: 11in;
-
-            margin: 0;
-            padding: 0;
-
-            background: white;
-        }
-
-        .toolbar,
-        #status {
-            display: none !important;
-        }
-
-        .page {
-            margin: 0;
-
-            width: 8.5in;
-            height: 11in;
-
-            box-shadow: none;
 
-            page-break-after: always;
-        }
+    .page {
+        margin: 0;
+        width: 8.5in;
+        height: 11in;
     }
+}
 
 </style>
 </head>
@@ -673,18 +517,17 @@
 <body>
 
 
-<!-- =========================================================
-     ปุ่ม
-     ========================================================= -->
-
 <div class="toolbar">
 
-    <button onclick="window.print()">
+    <button
+        class="btn-print"
+        onclick="window.print()"
+    >
         🖨️ พิมพ์ FM-WT-68
     </button>
 
     <button
-        class="secondary"
+        class="btn-close"
         onclick="window.close()"
     >
         ปิด
@@ -693,558 +536,201 @@
 </div>
 
 
-<div id="status">
+<div
+    class="status"
+    id="status"
+>
     กำลังโหลดข้อมูล...
 </div>
 
 
-
-<!-- =========================================================
-     แบบฟอร์ม
-     ========================================================= -->
-
 <div class="page">
 
 
-    <!-- =====================================================
-         SECTION 1
-         ===================================================== -->
+    <!-- ================= SECTION 1 ================= -->
 
-    <div
-        class="field date s1"
-        id="date1"
-    ></div>
+    <div class="field s1-date" id="date1"></div>
 
+    <div class="field s1-pre-a" id="preA1"></div>
+    <div class="field s1-pre-b" id="preB1"></div>
 
-    <div
-        class="field preA s1"
-        id="preA1"
-    ></div>
+    <div class="field s1-post-a" id="postA1"></div>
+    <div class="field s1-post-b" id="postB1"></div>
 
-    <div
-        class="field preB s1"
-        id="preB1"
-    ></div>
+    <div class="field s1-qty-a" id="qtyA1"></div>
+    <div class="field s1-qty-b" id="qtyB1"></div>
 
+    <div class="field s1-total" id="total1"></div>
 
-    <div
-        class="field postA s1"
-        id="postA1"
-    ></div>
+    <div class="field s1-order" id="order1"></div>
+    <div class="field s1-stop" id="stop1"></div>
 
-    <div
-        class="field postB s1"
-        id="postB1"
-    ></div>
+    <div class="field s1-ls" id="ls1"></div>
+    <div class="field s1-warehouse" id="warehouse1"></div>
 
+    <div class="field s1-hopper-a" id="hopperA1"></div>
+    <div class="field s1-hopper-b" id="hopperB1"></div>
 
-    <div
-        class="field qtyA s1"
-        id="qtyA1"
-    ></div>
+    <div class="field check s1-normal" id="normal1"></div>
+    <div class="field check s1-abnormal" id="abnormal1"></div>
 
-    <div
-        class="field qtyB s1"
-        id="qtyB1"
-    ></div>
+    <div class="field s1-note" id="note1"></div>
 
+    <div class="field s1-recorder" id="recorder1"></div>
+    <div class="field s1-checker" id="checker1"></div>
 
-    <div
-        class="field total s1"
-        id="total1"
-    ></div>
 
+    <!-- ================= SECTION 2 ================= -->
 
-    <div
-        class="field dcsOrder s1"
-        id="dcsOrder1"
-    ></div>
+    <div class="field s2-date" id="date2"></div>
 
-    <div
-        class="field dcsStop s1"
-        id="dcsStop1"
-    ></div>
+    <div class="field s2-pre-a" id="preA2"></div>
+    <div class="field s2-pre-b" id="preB2"></div>
 
+    <div class="field s2-post-a" id="postA2"></div>
+    <div class="field s2-post-b" id="postB2"></div>
 
-    <div
-        class="field lsEmployee s1"
-        id="lsEmployee1"
-    ></div>
+    <div class="field s2-qty-a" id="qtyA2"></div>
+    <div class="field s2-qty-b" id="qtyB2"></div>
 
-    <div
-        class="field warehouseEmployee s1"
-        id="warehouseEmployee1"
-    ></div>
+    <div class="field s2-total" id="total2"></div>
 
+    <div class="field s2-order" id="order2"></div>
+    <div class="field s2-stop" id="stop2"></div>
 
-    <div
-        class="field hopperA s1"
-        id="hopperA1"
-    ></div>
+    <div class="field s2-ls" id="ls2"></div>
+    <div class="field s2-warehouse" id="warehouse2"></div>
 
-    <div
-        class="field hopperB s1"
-        id="hopperB1"
-    ></div>
+    <div class="field s2-hopper-a" id="hopperA2"></div>
+    <div class="field s2-hopper-b" id="hopperB2"></div>
 
+    <div class="field check s2-normal" id="normal2"></div>
+    <div class="field check s2-abnormal" id="abnormal2"></div>
 
-    <div
-        class="checkbox normal s1"
-        id="normal1"
-    ></div>
+    <div class="field s2-note" id="note2"></div>
 
-    <div
-        class="checkbox abnormal s1"
-        id="abnormal1"
-    ></div>
+    <div class="field s2-recorder" id="recorder2"></div>
+    <div class="field s2-checker" id="checker2"></div>
 
 
-    <div
-        class="note s1"
-        id="note1"
-    ></div>
+    <!-- ================= SECTION 3 ================= -->
 
+    <div class="field s3-date" id="date3"></div>
 
-    <div
-        class="field recorder s1"
-        id="recorder1"
-    ></div>
+    <div class="field s3-pre-a" id="preA3"></div>
+    <div class="field s3-pre-b" id="preB3"></div>
 
-    <div
-        class="field checker s1"
-        id="checker1"
-    ></div>
+    <div class="field s3-post-a" id="postA3"></div>
+    <div class="field s3-post-b" id="postB3"></div>
 
+    <div class="field s3-qty-a" id="qtyA3"></div>
+    <div class="field s3-qty-b" id="qtyB3"></div>
 
+    <div class="field s3-total" id="total3"></div>
 
-    <!-- =====================================================
-         SECTION 2
-         ===================================================== -->
+    <div class="field s3-order" id="order3"></div>
+    <div class="field s3-stop" id="stop3"></div>
 
-    <div
-        class="field date s2"
-        id="date2"
-    ></div>
+    <div class="field s3-ls" id="ls3"></div>
+    <div class="field s3-warehouse" id="warehouse3"></div>
 
+    <div class="field s3-hopper-a" id="hopperA3"></div>
+    <div class="field s3-hopper-b" id="hopperB3"></div>
 
-    <div
-        class="field preA s2"
-        id="preA2"
-    ></div>
+    <div class="field check s3-normal" id="normal3"></div>
+    <div class="field check s3-abnormal" id="abnormal3"></div>
 
-    <div
-        class="field preB s2"
-        id="preB2"
-    ></div>
+    <div class="field s3-note" id="note3"></div>
 
-
-    <div
-        class="field postA s2"
-        id="postA2"
-    ></div>
-
-    <div
-        class="field postB s2"
-        id="postB2"
-    ></div>
-
-
-    <div
-        class="field qtyA s2"
-        id="qtyA2"
-    ></div>
-
-    <div
-        class="field qtyB s2"
-        id="qtyB2"
-    ></div>
-
-
-    <div
-        class="field total s2"
-        id="total2"
-    ></div>
-
-
-    <div
-        class="field dcsOrder s2"
-        id="dcsOrder2"
-    ></div>
-
-    <div
-        class="field dcsStop s2"
-        id="dcsStop2"
-    ></div>
-
-
-    <div
-        class="field lsEmployee s2"
-        id="lsEmployee2"
-    ></div>
-
-    <div
-        class="field warehouseEmployee s2"
-        id="warehouseEmployee2"
-    ></div>
-
-
-    <div
-        class="field hopperA s2"
-        id="hopperA2"
-    ></div>
-
-    <div
-        class="field hopperB s2"
-        id="hopperB2"
-    ></div>
-
-
-    <div
-        class="checkbox normal s2"
-        id="normal2"
-    ></div>
-
-    <div
-        class="checkbox abnormal s2"
-        id="abnormal2"
-    ></div>
-
-
-    <div
-        class="note s2"
-        id="note2"
-    ></div>
-
-
-    <div
-        class="field recorder s2"
-        id="recorder2"
-    ></div>
-
-    <div
-        class="field checker s2"
-        id="checker2"
-    ></div>
-
-
-
-    <!-- =====================================================
-         SECTION 3
-         ===================================================== -->
-
-    <div
-        class="field date s3"
-        id="date3"
-    ></div>
-
-
-    <div
-        class="field preA s3"
-        id="preA3"
-    ></div>
-
-    <div
-        class="field preB s3"
-        id="preB3"
-    ></div>
-
-
-    <div
-        class="field postA s3"
-        id="postA3"
-    ></div>
-
-    <div
-        class="field postB s3"
-        id="postB3"
-    ></div>
-
-
-    <div
-        class="field qtyA s3"
-        id="qtyA3"
-    ></div>
-
-    <div
-        class="field qtyB s3"
-        id="qtyB3"
-    ></div>
-
-
-    <div
-        class="field total s3"
-        id="total3"
-    ></div>
-
-
-    <div
-        class="field dcsOrder s3"
-        id="dcsOrder3"
-    ></div>
-
-    <div
-        class="field dcsStop s3"
-        id="dcsStop3"
-    ></div>
-
-
-    <div
-        class="field lsEmployee s3"
-        id="lsEmployee3"
-    ></div>
-
-    <div
-        class="field warehouseEmployee s3"
-        id="warehouseEmployee3"
-    ></div>
-
-
-    <div
-        class="field hopperA s3"
-        id="hopperA3"
-    ></div>
-
-    <div
-        class="field hopperB s3"
-        id="hopperB3"
-    ></div>
-
-
-    <div
-        class="checkbox normal s3"
-        id="normal3"
-    ></div>
-
-    <div
-        class="checkbox abnormal s3"
-        id="abnormal3"
-    ></div>
-
-
-    <div
-        class="note s3"
-        id="note3"
-    ></div>
-
-
-    <div
-        class="field recorder s3"
-        id="recorder3"
-    ></div>
-
-    <div
-        class="field checker s3"
-        id="checker3"
-    ></div>
+    <div class="field s3-recorder" id="recorder3"></div>
+    <div class="field s3-checker" id="checker3"></div>
 
 </div>
-
 
 
 <script>
 
 /* =========================================================
-   อ่านข้อมูล
+   อ่านข้อมูลจาก localStorage
    ========================================================= */
 
-function getPrintData() {
-
-    let data = null;
-
-
-    /* -----------------------------------------
-       วิธีที่ 1
-       localStorage
-       ----------------------------------------- */
+function getData() {
 
     try {
 
-        const saved =
-            localStorage.getItem("ktisFeedPrintData");
+        const data =
+            localStorage.getItem(
+                "ktisFeedPrintData"
+            );
 
-        if (saved) {
+        if (data) {
 
-            data = JSON.parse(saved);
+            return JSON.parse(data);
 
         }
 
     } catch (error) {
 
-        console.error(
-            "อ่าน localStorage ไม่สำเร็จ",
-            error
-        );
+        console.error(error);
 
     }
 
-
-    /* -----------------------------------------
-       วิธีที่ 2
-       localStorage ชื่อเดิม
-       ----------------------------------------- */
-
-    if (!data) {
-
-        try {
-
-            const saved =
-                localStorage.getItem("feedPrintData");
-
-            if (saved) {
-
-                data = JSON.parse(saved);
-
-            }
-
-        } catch (error) {
-
-            console.error(error);
-
-        }
-
-    }
-
-
-    /* -----------------------------------------
-       วิธีที่ 3
-       URL ?data=
-       ----------------------------------------- */
-
-    if (!data) {
-
-        try {
-
-            const params =
-                new URLSearchParams(
-                    window.location.search
-                );
-
-            const encoded =
-                params.get("data");
-
-            if (encoded) {
-
-                data =
-                    JSON.parse(
-                        decodeURIComponent(encoded)
-                    );
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "อ่านข้อมูลจาก URL ไม่สำเร็จ",
-                error
-            );
-
-        }
-
-    }
-
-
-    return data;
+    return null;
 }
-
 
 
 /* =========================================================
-   ฟังก์ชันช่วย
+   ใส่ข้อความ
    ========================================================= */
 
-function value(data, ...keys) {
-
-    if (!data) {
-        return "";
-    }
-
-    for (const key of keys) {
-
-        if (
-            data[key] !== undefined &&
-            data[key] !== null &&
-            data[key] !== ""
-        ) {
-
-            return data[key];
-
-        }
-
-    }
-
-    return "";
-}
-
-
-
-function setText(id, text) {
+function setText(id, value) {
 
     const el =
         document.getElementById(id);
 
-    if (!el) {
-        return;
-    }
+    if (!el) return;
 
     el.textContent =
-        text === undefined ||
-        text === null
-            ? ""
-            : text;
+        value ?? "";
 
 }
 
 
-
 /* =========================================================
-   แปลงวันที่
+   วันที่
    ========================================================= */
 
-function formatDate(dateValue) {
+function formatDate(value) {
 
-    if (!dateValue) {
-        return "";
-    }
+    if (!value) return "";
 
+    const d =
+        new Date(value);
 
-    const date =
-        new Date(dateValue);
+    if (isNaN(d.getTime())) {
 
-
-    if (isNaN(date.getTime())) {
-
-        return dateValue;
+        return value;
 
     }
 
-
-    const day =
-        String(
-            date.getDate()
-        ).padStart(2, "0");
-
-
-    const month =
-        String(
-            date.getMonth() + 1
-        ).padStart(2, "0");
-
-
-    const year =
-        date.getFullYear();
-
-
-    return `${day}/${month}/${year}`;
+    return (
+        String(d.getDate()).padStart(2, "0")
+        + "/"
+        +
+        String(d.getMonth() + 1).padStart(2, "0")
+        + "/"
+        +
+        d.getFullYear()
+    );
 
 }
 
 
-
 /* =========================================================
-   แปลงตัวเลข
+   ตัวเลข
    ========================================================= */
 
-function formatNumber(value, decimals = 3) {
+function number(value, decimals = 0) {
 
     if (
         value === null ||
@@ -1256,21 +742,19 @@ function formatNumber(value, decimals = 3) {
 
     }
 
-
-    const number =
+    const n =
         Number(
-            String(value).replace(/,/g, "")
+            String(value)
+                .replace(/,/g, "")
         );
 
-
-    if (isNaN(number)) {
+    if (isNaN(n)) {
 
         return value;
 
     }
 
-
-    return number.toLocaleString(
+    return n.toLocaleString(
         "en-US",
         {
             minimumFractionDigits: decimals,
@@ -1281,446 +765,258 @@ function formatNumber(value, decimals = 3) {
 }
 
 
-
 /* =========================================================
-   คำนวณจำนวน Ton
+   คำนวณ Ton
    ========================================================= */
 
-function calculateQuantity(pre, post) {
+function calcTon(before, after) {
 
     if (
-        pre === "" ||
-        post === ""
+        before === "" ||
+        after === ""
     ) {
 
         return "";
 
     }
 
-
-    const before =
+    const b =
         Number(
-            String(pre).replace(/,/g, "")
+            String(before)
+                .replace(/,/g, "")
         );
 
-    const after =
+    const a =
         Number(
-            String(post).replace(/,/g, "")
+            String(after)
+                .replace(/,/g, "")
         );
-
 
     if (
-        isNaN(before) ||
-        isNaN(after)
+        isNaN(b) ||
+        isNaN(a)
     ) {
 
         return "";
 
     }
-
 
     let result;
 
-
-    if (after >= before) {
+    if (a >= b) {
 
         result =
-            (after - before) / 1000;
+            (a - b) / 1000;
 
     } else {
 
-        /*
-         * รองรับเลขมิเตอร์วนกลับ
-         */
-
         result =
             (
-                (99999999 - before)
-                + after
+                (99999999 - b)
+                + a
                 + 1
             ) / 1000;
 
     }
-
 
     return result.toFixed(3);
 
 }
 
 
-
 /* =========================================================
-   ดึงข้อมูลแต่ละรายการ
+   ใส่ข้อมูล 1 รายการ
    ========================================================= */
 
-function normalizeRecord(record) {
+function fillSection(data, no) {
 
-    if (!record) {
-        return null;
-    }
-
-
-    const preA =
-        value(
-            record,
-            "preFeedA",
-            "preA",
-            "beforeA"
-        );
-
-
-    const preB =
-        value(
-            record,
-            "preFeedB",
-            "preB",
-            "beforeB"
-        );
-
-
-    const postA =
-        value(
-            record,
-            "postFeedA",
-            "postA",
-            "afterA"
-        );
-
-
-    const postB =
-        value(
-            record,
-            "postFeedB",
-            "postB",
-            "afterB"
-        );
-
-
-    let quantityA =
-        value(
-            record,
-            "quantityA",
-            "qtyA"
-        );
-
-
-    let quantityB =
-        value(
-            record,
-            "quantityB",
-            "qtyB"
-        );
-
-
-    if (
-        quantityA === "" &&
-        preA !== "" &&
-        postA !== ""
-    ) {
-
-        quantityA =
-            calculateQuantity(
-                preA,
-                postA
-            );
-
-    }
-
-
-    if (
-        quantityB === "" &&
-        preB !== "" &&
-        postB !== ""
-    ) {
-
-        quantityB =
-            calculateQuantity(
-                preB,
-                postB
-            );
-
-    }
-
-
-    let total =
-        value(
-            record,
-            "totalQuantity",
-            "total",
-            "totalTon"
-        );
-
-
-    if (
-        total === "" &&
-        (
-            quantityA !== "" ||
-            quantityB !== ""
-        )
-    ) {
-
-        total =
-            (
-                Number(quantityA || 0)
-                +
-                Number(quantityB || 0)
-            ).toFixed(3);
-
-    }
-
-
-    return {
-
-        date:
-            value(
-                record,
-                "date",
-                "feedDate"
-            ),
-
-        preA,
-        preB,
-
-        postA,
-        postB,
-
-        quantityA,
-        quantityB,
-
-        total,
-
-        dcsOrderTime:
-            value(
-                record,
-                "dcsOrderTime",
-                "dcsOrder"
-            ),
-
-        dcsStopTime:
-            value(
-                record,
-                "dcsStopTime",
-                "dcsStop"
-            ),
-
-        hopperSugarA:
-            value(
-                record,
-                "hopperSugarA",
-                "hopperA"
-            ),
-
-        hopperSugarB:
-            value(
-                record,
-                "hopperSugarB",
-                "hopperB"
-            ),
-
-        warehouseEmployee:
-            value(
-                record,
-                "warehouseEmployee",
-                "warehouse"
-            ),
-
-        lsEmployeeCheck:
-            value(
-                record,
-                "lsEmployeeCheck",
-                "lsEmployee",
-                "lsEmployeeName"
-            ),
-
-        feedStatus:
-            value(
-                record,
-                "feedStatus",
-                "status"
-            ),
-
-        notes:
-            value(
-                record,
-                "notes",
-                "note"
-            ),
-
-        recorderEmployee:
-            value(
-                record,
-                "recorderEmployee",
-                "recorder"
-            ),
-
-        checkerEmployee:
-            value(
-                record,
-                "checkerEmployee",
-                "checker"
-            )
-
-    };
-
-}
-
-
-
-/* =========================================================
-   ใส่ข้อมูลลง Section
-   ========================================================= */
-
-function fillSection(record, section) {
-
-    if (!record) {
-        return;
-    }
+    if (!data) return;
 
 
     /* วันที่ */
 
     setText(
-        `date${section}`,
-        formatDate(record.date)
+        `date${no}`,
+        formatDate(data.date)
     );
 
 
     /* ก่อนฟีด */
 
     setText(
-        `preA${section}`,
-        formatNumber(record.preA, 0)
+        `preA${no}`,
+        number(data.preFeedA)
     );
 
     setText(
-        `preB${section}`,
-        formatNumber(record.preB, 0)
+        `preB${no}`,
+        number(data.preFeedB)
     );
 
 
     /* หลังฟีด */
 
     setText(
-        `postA${section}`,
-        formatNumber(record.postA, 0)
+        `postA${no}`,
+        number(data.postFeedA)
     );
 
     setText(
-        `postB${section}`,
-        formatNumber(record.postB, 0)
+        `postB${no}`,
+        number(data.postFeedB)
     );
 
 
     /* จำนวน */
 
+    let qtyA =
+        data.quantityA;
+
+    let qtyB =
+        data.quantityB;
+
+
+    if (
+        qtyA === "" ||
+        qtyA === undefined
+    ) {
+
+        qtyA =
+            calcTon(
+                data.preFeedA,
+                data.postFeedA
+            );
+
+    }
+
+
+    if (
+        qtyB === "" ||
+        qtyB === undefined
+    ) {
+
+        qtyB =
+            calcTon(
+                data.preFeedB,
+                data.postFeedB
+            );
+
+    }
+
+
     setText(
-        `qtyA${section}`,
-        formatNumber(record.quantityA, 3)
+        `qtyA${no}`,
+        number(qtyA, 3)
     );
 
     setText(
-        `qtyB${section}`,
-        formatNumber(record.quantityB, 3)
+        `qtyB${no}`,
+        number(qtyB, 3)
     );
 
 
     /* รวม */
 
+    let total =
+        data.totalQuantity;
+
+
+    if (
+        total === "" ||
+        total === undefined
+    ) {
+
+        total =
+            (
+                Number(qtyA || 0)
+                +
+                Number(qtyB || 0)
+            ).toFixed(3);
+
+    }
+
+
     setText(
-        `total${section}`,
-        formatNumber(record.total, 3)
+        `total${no}`,
+        number(total, 3)
     );
 
 
     /* DCS */
 
     setText(
-        `dcsOrder${section}`,
-        record.dcsOrderTime
+        `order${no}`,
+        data.dcsOrderTime
     );
 
     setText(
-        `dcsStop${section}`,
-        record.dcsStopTime
+        `stop${no}`,
+        data.dcsStopTime
     );
 
 
     /* พนักงาน */
 
     setText(
-        `lsEmployee${section}`,
-        record.lsEmployeeCheck
+        `ls${no}`,
+        data.lsEmployeeCheck
     );
 
     setText(
-        `warehouseEmployee${section}`,
-        record.warehouseEmployee
+        `warehouse${no}`,
+        data.warehouseEmployee
     );
 
 
     /* Hopper */
 
     setText(
-        `hopperA${section}`,
-        formatNumber(
-            record.hopperSugarA,
-            0
-        )
+        `hopperA${no}`,
+        number(data.hopperSugarA)
     );
 
     setText(
-        `hopperB${section}`,
-        formatNumber(
-            record.hopperSugarB,
-            0
-        )
+        `hopperB${no}`,
+        number(data.hopperSugarB)
     );
 
 
     /* สถานะ */
 
-    const normal =
-        document.getElementById(
-            `normal${section}`
-        );
-
-    const abnormal =
-        document.getElementById(
-            `abnormal${section}`
-        );
+    const status =
+        String(
+            data.feedStatus || ""
+        ).trim();
 
 
     if (
-        String(record.feedStatus)
-            .trim()
-            .includes("ปกติ")
-            &&
-        !String(record.feedStatus)
-            .trim()
-            .includes("ไม่ปกติ")
+        status === "ปกติ"
     ) {
 
-        normal.textContent = "✓";
+        setText(
+            `normal${no}`,
+            "✓"
+        );
 
-        abnormal.textContent = "";
+        setText(
+            `abnormal${no}`,
+            ""
+        );
 
     }
     else if (
-        String(record.feedStatus)
-            .trim()
-            .includes("ไม่ปกติ")
+        status === "ไม่ปกติ"
     ) {
 
-        normal.textContent = "";
+        setText(
+            `normal${no}`,
+            ""
+        );
 
-        abnormal.textContent = "✓";
-
-    }
-    else {
-
-        normal.textContent = "";
-
-        abnormal.textContent = "";
+        setText(
+            `abnormal${no}`,
+            "✓"
+        );
 
     }
 
@@ -1728,124 +1024,101 @@ function fillSection(record, section) {
     /* หมายเหตุ */
 
     setText(
-        `note${section}`,
-        record.notes
+        `note${no}`,
+        data.notes
     );
 
 
     /* ผู้บันทึก */
 
     setText(
-        `recorder${section}`,
-        record.recorderEmployee
+        `recorder${no}`,
+        data.recorderEmployee
     );
 
 
     /* ผู้ตรวจสอบ */
 
     setText(
-        `checker${section}`,
-        record.checkerEmployee
+        `checker${no}`,
+        data.checkerEmployee
     );
 
 }
 
 
-
 /* =========================================================
-   โหลดข้อมูล
-   ========================================================= */
-
-function loadForm() {
-
-    const raw =
-        getPrintData();
-
-
-    if (!raw) {
-
-        document.getElementById(
-            "status"
-        ).textContent =
-            "ไม่พบข้อมูลสำหรับพิมพ์";
-
-        return;
-
-    }
-
-
-    /*
-     * รองรับทั้ง
-     *
-     * 1 รายการ
-     *
-     * และ
-     *
-     * Array 3 รายการ
-     */
-
-    let records;
-
-
-    if (Array.isArray(raw)) {
-
-        records = raw;
-
-    }
-    else if (
-        Array.isArray(raw.records)
-    ) {
-
-        records = raw.records;
-
-    }
-    else if (
-        Array.isArray(raw.data)
-    ) {
-
-        records = raw.data;
-
-    }
-    else {
-
-        records = [raw];
-
-    }
-
-
-    records =
-        records
-            .slice(0, 3)
-            .map(normalizeRecord);
-
-
-    records.forEach(
-        (record, index) => {
-
-            fillSection(
-                record,
-                index + 1
-            );
-
-        }
-    );
-
-
-    document.getElementById(
-        "status"
-    ).textContent =
-        `พบข้อมูล ${records.filter(Boolean).length} รายการ`;
-
-}
-
-
-/* =========================================================
-   เริ่มทำงาน
+   เริ่มต้น
    ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    loadForm
+    function() {
+
+        const data =
+            getData();
+
+
+        if (!data) {
+
+            document.getElementById(
+                "status"
+            ).textContent =
+                "ไม่พบข้อมูล กรุณากลับไปกรอกข้อมูลในหน้าหลัก";
+
+            return;
+
+        }
+
+
+        /*
+         * รองรับทั้ง
+         * object 1 รายการ
+         * และ array สูงสุด 3 รายการ
+         */
+
+        let records;
+
+
+        if (Array.isArray(data)) {
+
+            records = data;
+
+        }
+        else if (
+            Array.isArray(data.records)
+        ) {
+
+            records = data.records;
+
+        }
+        else {
+
+            records = [data];
+
+        }
+
+
+        records
+            .slice(0, 3)
+            .forEach(
+                function(record, index) {
+
+                    fillSection(
+                        record,
+                        index + 1
+                    );
+
+                }
+            );
+
+
+        document.getElementById(
+            "status"
+        ).textContent =
+            "FM-WT-68 พร้อมพิมพ์";
+
+    }
 );
 
 </script>
