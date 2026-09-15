@@ -1,764 +1,1714 @@
-// ============================================================
-// KTIS - Hopper Feed System
-// Google Apps Script
-// ============================================================
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-const SHEET_ID = '1oD-5HPoIF2UO0mIsCPAHKuHXlX9_yDx769M4PGjN69g';
-const SHEET_NAME = 'Hopper';
+    <title>บันทึกการตักจ่ายน้ำตาลทรายดิบ</title>
 
+    <script src="https://cdn.tailwindcss.com"></script>
 
-// ============================================================
-// ฟังก์ชันสำหรับส่ง JSON / JSONP
-// ============================================================
-function jsonResponse(data, callback) {
-  const json = JSON.stringify(data);
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-  // ถ้ามี callback ให้ตอบกลับเป็น JSONP
-  if (callback) {
-    // ป้องกัน callback ที่ไม่ใช่ชื่อฟังก์ชัน JavaScript ที่เหมาะสม
-    if (!/^[a-zA-Z_$][0-9a-zA-Z_$]*(\.[a-zA-Z_$][0-9a-zA-Z_$]*)*$/.test(callback)) {
-      return ContentService
-        .createTextOutput(JSON.stringify({
-          result: 'error',
-          message: 'Invalid callback'
-        }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
-    return ContentService
-      .createTextOutput(callback + '(' + json + ')')
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  }
-
-  // ถ้าไม่มี callback ให้ตอบ JSON ปกติ
-  return ContentService
-    .createTextOutput(json)
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-
-// ============================================================
-// doGet
-// ใช้สำหรับดึงข้อมูลจาก Google Sheet
-// ============================================================
-function doGet(e) {
-
-  try {
-
-    const ss = SpreadsheetApp.openById(SHEET_ID);
-    const sheet = ss.getSheetByName(SHEET_NAME);
-
-    if (!sheet) {
-      return jsonResponse({
-        result: 'error',
-        message: 'ไม่พบ Sheet ชื่อ ' + SHEET_NAME
-      }, e && e.parameter ? e.parameter.callback : null);
-    }
-
-
-    // ========================================================
-    // 1. ดึงตัวเลขก่อนฟีด A / B
-    // ========================================================
-    if (e.parameter.action === 'get_last_readings') {
-
-      const lastRow = sheet.getLastRow();
-
-      let preFeedA = '00000000';
-      let preFeedB = '00000000';
-
-      if (lastRow > 1) {
-
-        const lastRowData = sheet
-          .getRange(lastRow, 1, 1, sheet.getLastColumn())
-          .getValues()[0];
-
-        // E = หลังฟีด A
-        const postFeedAFromSheet = lastRowData[4];
-
-        // F = หลังฟีด B
-        const postFeedBFromSheet = lastRowData[5];
-
-
-        if (
-          postFeedAFromSheet !== undefined &&
-          postFeedAFromSheet !== null &&
-          String(postFeedAFromSheet).trim() !== ''
-        ) {
-
-          let valueA = String(postFeedAFromSheet).trim();
-
-          // กรณี Google Sheet เก็บเป็นตัวเลข
-          if (!isNaN(Number(valueA))) {
-            valueA = String(Math.round(Number(valueA)));
-          }
-
-          preFeedA = valueA.padStart(8, '0');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
         }
 
-
-        if (
-          postFeedBFromSheet !== undefined &&
-          postFeedBFromSheet !== null &&
-          String(postFeedBFromSheet).trim() !== ''
-        ) {
-
-          let valueB = String(postFeedBFromSheet).trim();
-
-          // กรณี Google Sheet เก็บเป็นตัวเลข
-          if (!isNaN(Number(valueB))) {
-            valueB = String(Math.round(Number(valueB)));
-          }
-
-          preFeedB = valueB.padStart(8, '0');
+        .container-block {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 1.5rem;
         }
-      }
 
-
-      Logger.log(
-        'Sending last readings: preFeedA=' +
-        preFeedA +
-        ', preFeedB=' +
-        preFeedB
-      );
-
-
-      return jsonResponse(
-        {
-          preFeedA: preFeedA,
-          preFeedB: preFeedB
-        },
-        e.parameter.callback
-      );
-    }
-
-
-    // ========================================================
-    // 2. รายงานสรุป
-    // ========================================================
-    else if (e.parameter.action === 'get_report') {
-
-      const startDateParam = e.parameter.startDate;
-      const endDateParam = e.parameter.endDate;
-      const statusFilterParam = e.parameter.feedStatusFilter;
-
-      const allData = sheet.getDataRange().getValues();
-
-
-      if (allData.length <= 1) {
-
-        Logger.log(
-          'No data found in sheet or only header row exists for report.'
-        );
-
-        return jsonResponse(
-          {
-            summary: {
-              totalTonA: '0.000',
-              totalTonB: '0.000',
-              grandTotalTon: '0.000',
-              normalCount: 0,
-              abnormalCount: 0,
-              filteredRecordsCount: 0
-            }
-          },
-          e.parameter.callback
-        );
-      }
-
-
-      const records = allData.slice(1);
-
-      let filteredRecords = records;
-
-
-      // ------------------------------------------------------
-      // กรองตามวันที่
-      // ------------------------------------------------------
-      if (startDateParam && endDateParam) {
-
-        const startDate =
-          new Date(startDateParam + 'T00:00:00');
-
-        const endDate =
-          new Date(endDateParam + 'T23:59:59');
-
-
-        filteredRecords = filteredRecords.filter(row => {
-
-          const rowDateValue = row[0];
-
-          if (!rowDateValue) {
-            return false;
-          }
-
-
-          let sheetDate;
-
-
-          if (rowDateValue instanceof Date) {
-
-            sheetDate = new Date(
-              rowDateValue.getFullYear(),
-              rowDateValue.getMonth(),
-              rowDateValue.getDate()
-            );
-
-          } else {
-
-            const dateStr = String(rowDateValue).trim();
-
-            const dateParts = dateStr.split('/');
-
-
-            if (dateParts.length === 3) {
-
-              sheetDate = new Date(
-                `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T00:00:00`
-              );
-
-            } else {
-
-              return false;
-            }
-          }
-
-
-          if (isNaN(sheetDate.getTime())) {
-
-            Logger.log(
-              'Invalid date in sheet row for filtering: ' +
-              rowDateValue
-            );
-
-            return false;
-          }
-
-
-          return (
-            sheetDate >= startDate &&
-            sheetDate <= endDate
-          );
-        });
-      }
-
-
-      // ------------------------------------------------------
-      // กรองสถานะ
-      // ------------------------------------------------------
-      if (
-        statusFilterParam &&
-        statusFilterParam !== 'ทั้งหมด'
-      ) {
-
-        filteredRecords = filteredRecords.filter(row => {
-
-          const feedStatus =
-            String(row[15]).trim();
-
-          return feedStatus === statusFilterParam;
-        });
-      }
-
-
-      let totalTonA = 0;
-      let totalTonB = 0;
-
-      let normalCount = 0;
-      let abnormalCount = 0;
-
-
-      filteredRecords.forEach(row => {
-
-        const quantityA =
-          parseFloat(row[6]) || 0;
-
-        const quantityB =
-          parseFloat(row[7]) || 0;
-
-        const feedStatus =
-          String(row[15]).trim();
-
-
-        totalTonA += quantityA;
-        totalTonB += quantityB;
-
-
-        if (feedStatus === 'ปกติ') {
-
-          normalCount++;
-
-        } else if (feedStatus === 'ไม่ปกติ') {
-
-          abnormalCount++;
+        .input-field {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.375rem;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #f8fafc;
+            transition: all 0.2s ease-in-out;
         }
-      });
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow:
+                0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        .input-field[readonly] {
+            background-color: #e2e8f0;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-primary:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .text-blue-heading {
+            color: #0d6efd;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
 
 
-      const grandTotalTon =
-        totalTonA + totalTonB;
+<body class="p-4 md:p-8">
+
+    <datalist id="employeeNamesList"></datalist>
 
 
-      const reportSummary = {
+    <div class="max-w-4xl mx-auto">
 
-        totalTonA:
-          totalTonA.toFixed(3),
+        <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">
+            บันทึกการตักจ่ายน้ำตาลทรายดิบให้โครงการ LS
+        </h1>
 
-        totalTonB:
-          totalTonB.toFixed(3),
-
-        grandTotalTon:
-          grandTotalTon.toFixed(3),
-
-        normalCount:
-          normalCount,
-
-        abnormalCount:
-          abnormalCount,
-
-        filteredRecordsCount:
-          filteredRecords.length
-      };
+        <p class="text-center text-sm text-gray-500 mb-8">
+            FM-WT-68 Rev.00 วันบังคับใช้ 1 มี.ค. 62 |
+            หน้าที่/ทั้งหมด ......./.......
+        </p>
 
 
-      Logger.log(
-        'Report Summary to be returned: ' +
-        JSON.stringify(reportSummary)
-      );
+        <form id="hopperFeedForm" class="space-y-6">
 
 
-      return jsonResponse(
-        {
-          summary: reportSummary
-        },
-        e.parameter.callback
-      );
-    }
+            <!-- ==================================================
+                 ข้อมูลการฟีด
+                 ================================================== -->
+
+            <div class="container-block">
+
+                <h2 class="text-blue-heading">
+                    ข้อมูลการฟีดและทั่วไป
+                </h2>
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="date"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            วัน/เดือน/ปี
+                        </label>
+
+                        <input
+                            type="date"
+                            id="date"
+                            name="date"
+                            class="input-field"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div></div>
+
+
+                    <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                        <!-- ก่อนฟีด -->
+
+                        <div>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                ตัวเลขก่อนฟีด
+                            </label>
+
+
+                            <div class="flex items-center mb-2">
+
+                                <span class="w-1/4 text-right pr-2">
+                                    A :
+                                </span>
+
+                                <input
+                                    type="number"
+                                    id="preFeedA"
+                                    name="preFeedA"
+                                    class="input-field w-3/4"
+                                    readonly
+                                    min="0"
+                                    max="99999999"
+                                    placeholder="กำลังดึงข้อมูล..."
+                                >
+
+                            </div>
+
+
+                            <div class="flex items-center">
+
+                                <span class="w-1/4 text-right pr-2">
+                                    B :
+                                </span>
+
+                                <input
+                                    type="number"
+                                    id="preFeedB"
+                                    name="preFeedB"
+                                    class="input-field w-3/4"
+                                    readonly
+                                    min="0"
+                                    max="99999999"
+                                    placeholder="กำลังดึงข้อมูล..."
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- หลังฟีด -->
+
+                        <div>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                ตัวเลขหลังฟีด
+                            </label>
+
+
+                            <div class="flex items-center mb-2">
+
+                                <span class="w-1/4 text-right pr-2">
+                                    A :
+                                </span>
+
+                                <input
+                                    type="number"
+                                    id="postFeedA"
+                                    name="postFeedA"
+                                    class="input-field w-3/4"
+                                    min="0"
+                                    max="99999999"
+                                    placeholder="กรอกตัวเลข 8 หลัก"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="flex items-center">
+
+                                <span class="w-1/4 text-right pr-2">
+                                    B :
+                                </span>
+
+                                <input
+                                    type="number"
+                                    id="postFeedB"
+                                    name="postFeedB"
+                                    class="input-field w-3/4"
+                                    min="0"
+                                    max="99999999"
+                                    placeholder="กรอกตัวเลข 8 หลัก"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ปริมาณ -->
+
+                    <div class="md:col-span-2 mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+
+
+                        <div>
+
+                            <label
+                                for="quantityA"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                                จำนวน (Ton) A
+                            </label>
+
+                            <input
+                                type="number"
+                                id="quantityA"
+                                name="quantityA"
+                                class="input-field"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label
+                                for="quantityB"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                                จำนวน (Ton) B
+                            </label>
+
+                            <input
+                                type="number"
+                                id="quantityB"
+                                name="quantityB"
+                                class="input-field"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label
+                                for="totalQuantity"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                                รวม (Ton)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="totalQuantity"
+                                name="totalQuantity"
+                                class="input-field"
+                                readonly
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 DCS
+                 ================================================== -->
+
+            <div class="container-block">
+
+                <h2 class="text-blue-heading">
+                    ข้อมูล DCS และปริมาณน้ำตาลคาถัง
+                </h2>
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="dcsOrderTime"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            DCS สั่งตัก (น.)
+                        </label>
+
+                        <input
+                            type="time"
+                            id="dcsOrderTime"
+                            name="dcsOrderTime"
+                            class="input-field"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="dcsStopTime"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            DCS สั่งหยุด (น.)
+                        </label>
+
+                        <input
+                            type="time"
+                            id="dcsStopTime"
+                            name="dcsStopTime"
+                            class="input-field"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="hopperSugarA"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            มีน้ำตาลคาถัง Hopper A (Kg.)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="hopperSugarA"
+                            name="hopperSugarA"
+                            class="input-field"
+                            min="0"
+                            max="99999999"
+                            placeholder="ใส่ค่า (ไม่เกิน 8 ตัว)"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="hopperSugarB"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            มีน้ำตาลคาถัง Hopper B (Kg.)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="hopperSugarB"
+                            name="hopperSugarB"
+                            class="input-field"
+                            min="0"
+                            max="99999999"
+                            placeholder="ใส่ค่า (ไม่เกิน 8 ตัว)"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 พนักงาน
+                 ================================================== -->
+
+            <div class="container-block">
+
+                <h2 class="text-blue-heading">
+                    ข้อมูลพนักงาน
+                </h2>
+
+
+                <div class="mb-4">
+
+                    <label
+                        for="warehouseEmployee"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                        พนักงานคลังสินค้า ร่วมตรวจสอบ
+                    </label>
+
+                    <input
+                        type="text"
+                        id="warehouseEmployee"
+                        name="warehouseEmployee"
+                        list="employeeNamesList"
+                        class="input-field"
+                        placeholder="เลือกหรือพิมพ์ชื่อพนักงาน"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="mb-4">
+
+                    <label
+                        for="lsEmployeeCheck"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                        พนักงาน LS ร่วมตรวจสอบ
+                    </label>
+
+                    <input
+                        type="text"
+                        id="lsEmployeeCheck"
+                        name="lsEmployeeCheck"
+                        list="employeeNamesList"
+                        class="input-field"
+                        placeholder="เลือกหรือพิมพ์ชื่อพนักงาน"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 สถานะ
+                 ================================================== -->
+
+            <div class="container-block">
+
+                <h2 class="text-blue-heading">
+                    สถานะและหมายเหตุ
+                </h2>
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="feedStatus"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            การฟีคครั้งนี้
+                        </label>
+
+                        <select
+                            id="feedStatus"
+                            name="feedStatus"
+                            class="input-field"
+                            required
+                        >
+
+                            <option value="ปกติ">
+                                ปกติ
+                            </option>
+
+                            <option value="ไม่ปกติ">
+                                ไม่ปกติ
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div></div>
+
+
+                    <div class="md:col-span-2 mb-4">
+
+                        <label
+                            for="notes"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            หมายเหตุ
+                        </label>
+
+                        <textarea
+                            id="notes"
+                            name="notes"
+                            class="input-field h-24 resize-y"
+                            maxlength="300"
+                            placeholder="ใส่หมายเหตุ (สูงสุด 300 ตัวอักษร)"
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 ผู้รับรอง
+                 ================================================== -->
+
+            <div class="container-block">
+
+                <h2 class="text-blue-heading">
+                    ผู้รับรอง
+                </h2>
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="recorderEmployee"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            ผู้บันทึก
+                        </label>
+
+                        <input
+                            type="text"
+                            id="recorderEmployee"
+                            name="recorderEmployee"
+                            list="employeeNamesList"
+                            class="input-field"
+                            placeholder="เลือกหรือพิมพ์ชื่อพนักงาน"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="checkerEmployee"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            ผู้ตรวจสอบ
+                        </label>
+
+                        <input
+                            type="text"
+                            id="checkerEmployee"
+                            name="checkerEmployee"
+                            list="employeeNamesList"
+                            class="input-field"
+                            placeholder="เลือกหรือพิมพ์ชื่อพนักงาน"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 ปุ่มบันทึก
+                 ================================================== -->
+
+            <button
+                type="submit"
+                class="btn-primary"
+                id="saveButton"
+            >
+                บันทึกข้อมูล
+            </button>
+
+
+            <div
+                id="messageBox"
+                class="hidden mt-4 p-4 rounded-lg text-center"
+                role="alert"
+            ></div>
+
+
+            <div
+                id="loadingIndicator"
+                class="hidden mt-4 text-center text-blue-600 font-medium"
+            >
+                กำลังดำเนินการ...
+            </div>
+
+
+        </form>
+
+    </div>
+
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
 
 
     // ========================================================
-    // 3. ดึงข้อมูลหลายรายการสำหรับวันที่เลือก
+    // Elements
     // ========================================================
-    else if (
-      e.parameter.action === 'get_records_for_date'
-    ) {
 
-      const targetDateParam =
-        e.parameter.targetDate;
+    const form =
+        document.getElementById('hopperFeedForm');
 
+    const dateInput =
+        document.getElementById('date');
 
-      const allData =
-        sheet.getDataRange().getValues();
+    const recorderEmployeeInput =
+        document.getElementById('recorderEmployee');
 
+    const warehouseEmployeeInput =
+        document.getElementById('warehouseEmployee');
 
-      if (allData.length <= 1) {
+    const lsEmployeeCheckInput =
+        document.getElementById('lsEmployeeCheck');
 
-        Logger.log(
-          'No data found in sheet for get_records_for_date.'
-        );
+    const checkerEmployeeInput =
+        document.getElementById('checkerEmployee');
 
 
-        return jsonResponse(
-          {
-            records: [],
-            totalRecords: 0
-          },
-          e.parameter.callback
-        );
-      }
+    const employeeNamesDatalist =
+        document.getElementById('employeeNamesList');
 
 
-      const records =
-        allData.slice(1);
+    const preFeedAInput =
+        document.getElementById('preFeedA');
 
+    const preFeedBInput =
+        document.getElementById('preFeedB');
 
-      const targetDateObj =
-        new Date(targetDateParam + 'T00:00:00');
+    const postFeedAInput =
+        document.getElementById('postFeedA');
 
+    const postFeedBInput =
+        document.getElementById('postFeedB');
 
-      const matchingRecords =
-        records.filter(row => {
+    const quantityAInput =
+        document.getElementById('quantityA');
 
-          const rowDateValue = row[0];
+    const quantityBInput =
+        document.getElementById('quantityB');
 
+    const totalQuantityInput =
+        document.getElementById('totalQuantity');
 
-          if (!rowDateValue) {
-            return false;
-          }
 
+    const dcsOrderTimeInput =
+        document.getElementById('dcsOrderTime');
 
-          let sheetDate;
+    const dcsStopTimeInput =
+        document.getElementById('dcsStopTime');
 
 
-          if (rowDateValue instanceof Date) {
+    const hopperSugarAInput =
+        document.getElementById('hopperSugarA');
 
-            sheetDate = new Date(
-              rowDateValue.getFullYear(),
-              rowDateValue.getMonth(),
-              rowDateValue.getDate()
-            );
+    const hopperSugarBInput =
+        document.getElementById('hopperSugarB');
 
-          } else {
 
-            const dateStr =
-              String(rowDateValue).trim();
+    const feedStatusSelect =
+        document.getElementById('feedStatus');
 
+    const notesInput =
+        document.getElementById('notes');
 
-            if (dateStr.includes('/')) {
 
-              const parts =
-                dateStr.split('/');
+    const saveButton =
+        document.getElementById('saveButton');
 
+    const messageBox =
+        document.getElementById('messageBox');
 
-              sheetDate =
-                new Date(
-                  `${parts[2]}-${parts[1]}-${parts[0]}T00:00:00`
-                );
+    const loadingIndicator =
+        document.getElementById('loadingIndicator');
 
-            } else {
-
-              sheetDate =
-                new Date(
-                  dateStr + 'T00:00:00'
-                );
-            }
-          }
-
-
-          if (isNaN(sheetDate.getTime())) {
-
-            Logger.log(
-              'Invalid date in sheet row for filtering (get_records_for_date): ' +
-              rowDateValue
-            );
-
-            return false;
-          }
-
-
-          return (
-            sheetDate.getTime() ===
-            targetDateObj.getTime()
-          );
-        });
-
-
-      // ------------------------------------------------------
-      // เรียงตาม DCS สั่งตัก
-      // ------------------------------------------------------
-      matchingRecords.sort((a, b) => {
-
-        const timeA =
-          a[9] instanceof Date
-            ? a[9]
-            : new Date(
-                `1899-12-30T${String(a[9] || '00:00')}:00`
-              );
-
-
-        const timeB =
-          b[9] instanceof Date
-            ? b[9]
-            : new Date(
-                `1899-12-30T${String(b[9] || '00:00')}:00`
-              );
-
-
-        return (
-          timeA.getTime() -
-          timeB.getTime()
-        );
-      });
-
-
-      // ------------------------------------------------------
-      // จัดรูปข้อมูล
-      // ------------------------------------------------------
-      const formattedRecords =
-        matchingRecords.map(selectedRecord => {
-
-          return {
-
-            date:
-              selectedRecord[0] instanceof Date
-                ? Utilities.formatDate(
-                    selectedRecord[0],
-                    ss.getSpreadsheetTimeZone(),
-                    'dd/MM/yyyy'
-                  )
-                : selectedRecord[0],
-
-
-            recorderEmployee:
-              selectedRecord[1],
-
-
-            preFeedA:
-              selectedRecord[2],
-
-
-            preFeedB:
-              selectedRecord[3],
-
-
-            postFeedA:
-              selectedRecord[4],
-
-
-            postFeedB:
-              selectedRecord[5],
-
-
-            quantityA:
-              selectedRecord[6],
-
-
-            quantityB:
-              selectedRecord[7],
-
-
-            totalQuantity:
-              selectedRecord[8],
-
-
-            dcsOrderTime:
-              selectedRecord[9]
-                ? Utilities.formatDate(
-                    selectedRecord[9],
-                    ss.getSpreadsheetTimeZone(),
-                    'HH:mm'
-                  )
-                : '',
-
-
-            dcsStopTime:
-              selectedRecord[10]
-                ? Utilities.formatDate(
-                    selectedRecord[10],
-                    ss.getSpreadsheetTimeZone(),
-                    'HH:mm'
-                  )
-                : '',
-
-
-            hopperSugarA:
-              selectedRecord[11],
-
-
-            hopperSugarB:
-              selectedRecord[12],
-
-
-            warehouseEmployee:
-              selectedRecord[13],
-
-
-            lsEmployeeCheck:
-              selectedRecord[14],
-
-
-            feedStatus:
-              selectedRecord[15],
-
-
-            notes:
-              selectedRecord[16],
-
-
-            checkerEmployee:
-              selectedRecord[17]
-          };
-        });
-
-
-      Logger.log(
-        'Returning ' +
-        formattedRecords.length +
-        ' records for date ' +
-        targetDateParam
-      );
-
-
-      return jsonResponse(
-        {
-          records: formattedRecords,
-          totalRecords: formattedRecords.length
-        },
-        e.parameter.callback
-      );
-    }
 
 
     // ========================================================
-    // กรณีไม่มี action
+    // Google Apps Script URL
     // ========================================================
-    return jsonResponse(
-      {
-        result: 'success',
-        message: 'KTIS Hopper Feed Web App is running.'
-      },
-      e.parameter.callback
-    );
+
+    const GOOGLE_APPS_SCRIPT_URL =
+        'https://script.google.com/macros/s/AKfycbxsVQEbYlJpQVkhp3hk28eshjkvrbDI3MfeQV2heilRFMhw4MsvKeiFq3Oxg7gLnTJk/exec';
 
 
-  } catch (error) {
 
-    Logger.log(
-      'doGet Error: ' +
-      error.message
-    );
+    // ========================================================
+    // รายชื่อพนักงาน
+    // ========================================================
 
+    const PREDEFINED_EMPLOYEES = [
 
-    return jsonResponse(
-      {
-        result: 'error',
-        message: error.message
-      },
-      e && e.parameter
-        ? e.parameter.callback
-        : null
-    );
-  }
-}
+        'นายสุชาติ เหมือนฤทธิ์',
 
+        'นายดนัย แก้วฉนวน',
 
-// ============================================================
-// doPost
-// ใช้สำหรับบันทึกข้อมูลลง Google Sheet
-// ============================================================
-function doPost(e) {
+        'นายสายัณห์ สีมันตะ',
 
-  try {
+        'นางสาวนวพร เอี่ยมไพรบูลย์',
 
-    const ss =
-      SpreadsheetApp.openById(SHEET_ID);
+        'นางกาญจนา วงษ์มณี'
 
-    const sheet =
-      ss.getSheetByName(SHEET_NAME);
-
-
-    if (!sheet) {
-
-      throw new Error(
-        'ไม่พบ Sheet ชื่อ ' + SHEET_NAME
-      );
-    }
-
-
-    Logger.log(
-      'ข้อมูลที่ได้รับจาก Web App (e.parameter): ' +
-      JSON.stringify(e.parameter)
-    );
-
-
-    const data =
-      e.parameter;
-
-
-    // --------------------------------------------------------
-    // แปลงวันที่จาก YYYY-MM-DD เป็น DD/MM/YYYY
-    // --------------------------------------------------------
-    let formattedDate = '';
-
-
-    if (data.date) {
-
-      const parts =
-        data.date.split('-');
-
-
-      if (parts.length === 3) {
-
-        formattedDate =
-          `${parts[2]}/${parts[1]}/${parts[0]}`;
-
-      } else {
-
-        formattedDate =
-          data.date;
-      }
-    }
-
-
-    // --------------------------------------------------------
-    // เตรียมข้อมูลลง Sheet
-    // --------------------------------------------------------
-    const row = [
-
-      formattedDate,                  // A วันที่
-
-      data.recorderEmployee,          // B ผู้บันทึก
-
-      data.preFeedA,                  // C ก่อนฟีด A
-
-      data.preFeedB,                  // D ก่อนฟีด B
-
-      data.postFeedA,                 // E หลังฟีด A
-
-      data.postFeedB,                 // F หลังฟีด B
-
-      data.quantityA,                 // G Ton A
-
-      data.quantityB,                 // H Ton B
-
-      data.totalQuantity,             // I รวม
-
-      data.dcsOrderTime,              // J DCS สั่งตัก
-
-      data.dcsStopTime,               // K DCS สั่งหยุด
-
-      data.hopperSugarA,              // L น้ำตาล Hopper A
-
-      data.hopperSugarB,              // M น้ำตาล Hopper B
-
-      data.warehouseEmployee,         // N พนักงานคลัง
-
-      data.lsEmployeeCheck,           // O พนักงาน LS
-
-      data.feedStatus,                // P สถานะ
-
-      data.notes,                     // Q หมายเหตุ
-
-      data.checkerEmployee            // R ผู้ตรวจสอบ
     ];
 
 
-    Logger.log(
-      'แถวข้อมูลที่จะบันทึก: ' +
-      JSON.stringify(row)
+
+    // ========================================================
+    // Local Storage
+    // ========================================================
+
+    const LOCAL_STORAGE_KEY_EMPLOYEES =
+        'ktisHopperAllEmployees';
+
+    const LOCAL_STORAGE_KEY_LAST_RECORDER =
+        'ktisLastRecorderEmployee';
+
+    const LOCAL_STORAGE_KEY_LAST_WAREHOUSE =
+        'ktisLastWarehouseEmployee';
+
+    const LOCAL_STORAGE_KEY_LAST_LS_CHECK =
+        'ktisLastLsCheckEmployee';
+
+    const LOCAL_STORAGE_KEY_LAST_CHECKER =
+        'ktisLastCheckerEmployee';
+
+
+
+    // ========================================================
+    // แสดงข้อความ
+    // ========================================================
+
+    function showMessage(message, type = 'info') {
+
+        messageBox.textContent =
+            message;
+
+
+        messageBox.classList.remove(
+            'hidden',
+            'bg-green-100',
+            'text-green-800',
+            'bg-red-100',
+            'text-red-800',
+            'bg-blue-100',
+            'text-blue-800'
+        );
+
+
+        if (type === 'success') {
+
+            messageBox.classList.add(
+                'bg-green-100',
+                'text-green-800'
+            );
+
+        }
+
+        else if (type === 'error') {
+
+            messageBox.classList.add(
+                'bg-red-100',
+                'text-red-800'
+            );
+
+        }
+
+        else {
+
+            messageBox.classList.add(
+                'bg-blue-100',
+                'text-blue-800'
+            );
+        }
+
+
+        setTimeout(function() {
+
+            messageBox.classList.add(
+                'hidden'
+            );
+
+        }, 5000);
+    }
+
+
+
+    // ========================================================
+    // Datalist พนักงาน
+    // ========================================================
+
+    function updateDatalist(
+        inputElement,
+        localStorageKeyForLastValue
+    ) {
+
+        if (!employeeNamesDatalist) {
+            return;
+        }
+
+
+        let storedEmployees =
+            JSON.parse(
+                localStorage.getItem(
+                    LOCAL_STORAGE_KEY_EMPLOYEES
+                )
+            ) || [];
+
+
+        const allEmployees =
+            [
+                ...new Set(
+                    [
+                        ...PREDEFINED_EMPLOYEES,
+                        ...storedEmployees
+                    ]
+                )
+            ];
+
+
+        employeeNamesDatalist.innerHTML = '';
+
+
+        allEmployees.forEach(function(employee) {
+
+            const option =
+                document.createElement('option');
+
+            option.value =
+                employee;
+
+            employeeNamesDatalist.appendChild(
+                option
+            );
+
+        });
+
+
+        const lastEmployee =
+            localStorage.getItem(
+                localStorageKeyForLastValue
+            );
+
+
+        if (lastEmployee) {
+
+            inputElement.value =
+                lastEmployee;
+        }
+    }
+
+
+
+    // ========================================================
+    // บันทึกชื่อพนักงาน
+    // ========================================================
+
+    function saveEmployeeToLocalStorage(
+        employeeName
+    ) {
+
+        if (
+            !employeeName ||
+            PREDEFINED_EMPLOYEES.includes(
+                employeeName
+            )
+        ) {
+            return;
+        }
+
+
+        let storedEmployees =
+            JSON.parse(
+                localStorage.getItem(
+                    LOCAL_STORAGE_KEY_EMPLOYEES
+                )
+            ) || [];
+
+
+        if (
+            !storedEmployees.includes(
+                employeeName
+            )
+        ) {
+
+            storedEmployees.push(
+                employeeName
+            );
+
+
+            localStorage.setItem(
+                LOCAL_STORAGE_KEY_EMPLOYEES,
+                JSON.stringify(
+                    storedEmployees
+                )
+            );
+        }
+    }
+
+
+
+    // ========================================================
+    // วันที่
+    // ========================================================
+
+    function getFormattedDate(date) {
+
+        const year =
+            date.getFullYear();
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, '0');
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, '0');
+
+
+        return `${year}-${month}-${day}`;
+    }
+
+
+
+    // ========================================================
+    // เวลา
+    // ========================================================
+
+    function getFormattedTime(date) {
+
+        const hours =
+            String(
+                date.getHours()
+            ).padStart(2, '0');
+
+        const minutes =
+            String(
+                date.getMinutes()
+            ).padStart(2, '0');
+
+
+        return `${hours}:${minutes}`;
+    }
+
+
+
+    // ========================================================
+    // คำนวณจำนวนตัน
+    // ========================================================
+
+    function calculateQuantities() {
+
+        if (
+            !preFeedAInput ||
+            !preFeedBInput ||
+            !postFeedAInput ||
+            !postFeedBInput ||
+            !quantityAInput ||
+            !quantityBInput ||
+            !totalQuantityInput
+        ) {
+            return;
+        }
+
+
+        const preA =
+            parseFloat(
+                preFeedAInput.value
+            ) || 0;
+
+
+        const postA =
+            parseFloat(
+                postFeedAInput.value
+            ) || 0;
+
+
+        const preB =
+            parseFloat(
+                preFeedBInput.value
+            ) || 0;
+
+
+        const postB =
+            parseFloat(
+                postFeedBInput.value
+            ) || 0;
+
+
+        let quantityA = 0;
+
+        let quantityB = 0;
+
+
+        // ----------------------------------------------------
+        // Hopper A
+        // ----------------------------------------------------
+
+        if (postA >= preA) {
+
+            quantityA =
+                (postA - preA) / 1000;
+
+        } else {
+
+            quantityA =
+                (
+                    (99999999 - preA) +
+                    postA +
+                    1
+                ) / 1000;
+        }
+
+
+        // ----------------------------------------------------
+        // Hopper B
+        // ----------------------------------------------------
+
+        if (postB >= preB) {
+
+            quantityB =
+                (postB - preB) / 1000;
+
+        } else {
+
+            quantityB =
+                (
+                    (99999999 - preB) +
+                    postB +
+                    1
+                ) / 1000;
+        }
+
+
+        quantityAInput.value =
+            quantityA.toFixed(3);
+
+        quantityBInput.value =
+            quantityB.toFixed(3);
+
+        totalQuantityInput.value =
+            (
+                quantityA +
+                quantityB
+            ).toFixed(3);
+    }
+
+
+
+    // ========================================================
+    // ตั้งค่าวันที่และเวลา
+    // ========================================================
+
+    const now =
+        new Date();
+
+
+    dateInput.value =
+        getFormattedDate(now);
+
+
+    dcsOrderTimeInput.value =
+        getFormattedTime(now);
+
+
+    dcsStopTimeInput.value =
+        getFormattedTime(now);
+
+
+
+    // ========================================================
+    // โหลดรายชื่อพนักงาน
+    // ========================================================
+
+    updateDatalist(
+        recorderEmployeeInput,
+        LOCAL_STORAGE_KEY_LAST_RECORDER
+    );
+
+    updateDatalist(
+        warehouseEmployeeInput,
+        LOCAL_STORAGE_KEY_LAST_WAREHOUSE
+    );
+
+    updateDatalist(
+        lsEmployeeCheckInput,
+        LOCAL_STORAGE_KEY_LAST_LS_CHECK
+    );
+
+    updateDatalist(
+        checkerEmployeeInput,
+        LOCAL_STORAGE_KEY_LAST_CHECKER
     );
 
 
-    sheet.appendRow(row);
 
+    // ========================================================
+    // จำชื่อพนักงาน
+    // ========================================================
 
-    return ContentService
-      .createTextOutput(
-        JSON.stringify({
-          result: 'success'
-        })
-      )
-      .setMimeType(
-        ContentService.MimeType.JSON
-      );
+    recorderEmployeeInput.addEventListener(
+        'change',
+        function() {
 
+            const value =
+                recorderEmployeeInput.value.trim();
 
-  } catch (error) {
+            saveEmployeeToLocalStorage(
+                value
+            );
 
-    Logger.log(
-      'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' +
-      error.message
+            localStorage.setItem(
+                LOCAL_STORAGE_KEY_LAST_RECORDER,
+                value
+            );
+        }
     );
 
 
-    return ContentService
-      .createTextOutput(
-        JSON.stringify({
-          result: 'error',
-          message: error.message
-        })
-      )
-      .setMimeType(
-        ContentService.MimeType.JSON
-      );
-  }
-}
+    warehouseEmployeeInput.addEventListener(
+        'change',
+        function() {
+
+            const value =
+                warehouseEmployeeInput.value.trim();
+
+            saveEmployeeToLocalStorage(
+                value
+            );
+
+            localStorage.setItem(
+                LOCAL_STORAGE_KEY_LAST_WAREHOUSE,
+                value
+            );
+        }
+    );
+
+
+    lsEmployeeCheckInput.addEventListener(
+        'change',
+        function() {
+
+            const value =
+                lsEmployeeCheckInput.value.trim();
+
+            saveEmployeeToLocalStorage(
+                value
+            );
+
+            localStorage.setItem(
+                LOCAL_STORAGE_KEY_LAST_LS_CHECK,
+                value
+            );
+        }
+    );
+
+
+    checkerEmployeeInput.addEventListener(
+        'change',
+        function() {
+
+            const value =
+                checkerEmployeeInput.value.trim();
+
+            saveEmployeeToLocalStorage(
+                value
+            );
+
+            localStorage.setItem(
+                LOCAL_STORAGE_KEY_LAST_CHECKER,
+                value
+            );
+        }
+    );
+
+
+
+    // ========================================================
+    // คำนวณเมื่อกรอกเลขหลังฟีด
+    // ========================================================
+
+    postFeedAInput.addEventListener(
+        'input',
+        calculateQuantities
+    );
+
+
+    postFeedBInput.addEventListener(
+        'input',
+        calculateQuantities
+    );
+
+
+
+    // ========================================================
+    // ⭐ ดึงเลขก่อนฟีดด้วย JSONP
+    // ========================================================
+
+    function fetchLastReadings() {
+
+        loadingIndicator.textContent =
+            'กำลังดึงข้อมูลตัวเลขก่อนฟีด...';
+
+
+        loadingIndicator.classList.remove(
+            'hidden'
+        );
+
+
+        const callbackName =
+            'hopperFeedCallback_' +
+            Date.now();
+
+
+        let finished = false;
+
+
+        // ----------------------------------------------------
+        // Callback ที่ Google Apps Script จะเรียก
+        // ----------------------------------------------------
+
+        window[callbackName] =
+            function(data) {
+
+                if (finished) {
+                    return;
+                }
+
+                finished = true;
+
+
+                try {
+
+                    console.log(
+                        'ข้อมูลก่อนฟีดที่ได้รับ:',
+                        data
+                    );
+
+
+                    // ------------------------------
+                    // Hopper A
+                    // ------------------------------
+
+                    if (
+                        data &&
+                        data.preFeedA !== undefined &&
+                        data.preFeedA !== null
+                    ) {
+
+                        preFeedAInput.value =
+                            data.preFeedA;
+
+                    } else {
+
+                        preFeedAInput.value =
+                            '00000000';
+                    }
+
+
+                    // ------------------------------
+                    // Hopper B
+                    // ------------------------------
+
+                    if (
+                        data &&
+                        data.preFeedB !== undefined &&
+                        data.preFeedB !== null
+                    ) {
+
+                        preFeedBInput.value =
+                            data.preFeedB;
+
+                    } else {
+
+                        preFeedBInput.value =
+                            '00000000';
+                    }
+
+
+                    calculateQuantities();
+
+
+                    showMessage(
+                        'ดึงข้อมูลตัวเลขก่อนฟีดสำเร็จแล้ว',
+                        'success'
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        'เกิดข้อผิดพลาดในการประมวลผลข้อมูล:',
+                        error
+                    );
+
+
+                    preFeedAInput.value =
+                        '00000000';
+
+                    preFeedBInput.value =
+                        '00000000';
+
+
+                    calculateQuantities();
+
+
+                    showMessage(
+                        'เกิดข้อผิดพลาดในการอ่านข้อมูล: ' +
+                        error.message,
+                        'error'
+                    );
+
+                }
+
+
+                cleanup();
+            };
+
+
+
+        // ----------------------------------------------------
+        // กรณีโหลด Google Apps Script ไม่สำเร็จ
+        // ----------------------------------------------------
+
+        function handleError() {
+
+            if (finished) {
+                return;
+            }
+
+            finished = true;
+
+
+            console.error(
+                'ไม่สามารถเชื่อมต่อ Google Apps Script ได้'
+            );
+
+
+            preFeedAInput.value =
+                '00000000';
+
+            preFeedBInput.value =
+                '00000000';
+
+
+            calculateQuantities();
+
+
+            showMessage(
+                'ไม่สามารถดึงข้อมูลตัวเลขก่อนฟีดจาก Google Sheet ได้',
+                'error'
+            );
+
+
+            cleanup();
+        }
+
+
+
+        // ----------------------------------------------------
+        // ล้าง Script / Callback
+        // ----------------------------------------------------
+
+        function cleanup() {
+
+            loadingIndicator.classList.add(
+                'hidden'
+            );
+
+
+            delete window[callbackName];
+
+
+            if (
+                script &&
+                script.parentNode
+            ) {
+
+                script.parentNode.removeChild(
+                    script
+                );
+            }
+        }
+
+
+
+        // ----------------------------------------------------
+        // สร้าง Script สำหรับ JSONP
+        // ----------------------------------------------------
+
+        const script =
+            document.createElement('script');
+
+
+        script.src =
+            GOOGLE_APPS_SCRIPT_URL +
+            '?action=get_last_readings' +
+            '&callback=' +
+            encodeURIComponent(
+                callbackName
+            );
+
+
+        script.onerror =
+            handleError;
+
+
+        document.body.appendChild(
+            script
+        );
+    }
+
+
+
+    // ========================================================
+    // เรียกดึงข้อมูลเมื่อเปิดหน้าเว็บ
+    // ========================================================
+
+    fetchLastReadings();
+
+
+
+    // ========================================================
+    // บันทึกข้อมูล
+    // ========================================================
+
+    form.addEventListener(
+        'submit',
+        async function(event) {
+
+            event.preventDefault();
+
+
+            saveButton.disabled =
+                true;
+
+
+            loadingIndicator.textContent =
+                'กำลังบันทึกข้อมูล...';
+
+
+            loadingIndicator.classList.remove(
+                'hidden'
+            );
+
+
+            messageBox.classList.add(
+                'hidden'
+            );
+
+
+            // ------------------------------------------------
+            // เตรียมข้อมูล
+            // ------------------------------------------------
+
+            const formData = {
+
+                date:
+                    dateInput.value,
+
+                recorderEmployee:
+                    recorderEmployeeInput.value.trim(),
+
+                preFeedA:
+                    preFeedAInput.value,
+
+                preFeedB:
+                    preFeedBInput.value,
+
+                postFeedA:
+                    postFeedAInput.value,
+
+                postFeedB:
+                    postFeedBInput.value,
+
+                quantityA:
+                    quantityAInput.value,
+
+                quantityB:
+                    quantityBInput.value,
+
+                totalQuantity:
+                    totalQuantityInput.value,
+
+                dcsOrderTime:
+                    dcsOrderTimeInput.value,
+
+                dcsStopTime:
+                    dcsStopTimeInput.value,
+
+                hopperSugarA:
+                    hopperSugarAInput.value,
+
+                hopperSugarB:
+                    hopperSugarBInput.value,
+
+                warehouseEmployee:
+                    warehouseEmployeeInput.value.trim(),
+
+                lsEmployeeCheck:
+                    lsEmployeeCheckInput.value.trim(),
+
+                feedStatus:
+                    feedStatusSelect.value,
+
+                notes:
+                    notesInput.value.trim(),
+
+                checkerEmployee:
+                    checkerEmployeeInput.value.trim()
+            };
+
+
+            console.log(
+                'ข้อมูลฟอร์มที่กำลังจะถูกส่ง:',
+                formData
+            );
+
+
+
+            try {
+
+                // ------------------------------------------------
+                // ส่งข้อมูลไป Google Apps Script
+                // ------------------------------------------------
+
+                await fetch(
+                    GOOGLE_APPS_SCRIPT_URL,
+                    {
+                        method: 'POST',
+
+                        mode: 'no-cors',
+
+                        headers: {
+                            'Content-Type':
+                                'application/x-www-form-urlencoded'
+                        },
+
+                        body:
+                            new URLSearchParams(
+                                formData
+                            ).toString()
+                    }
+                );
+
+
+                // ------------------------------------------------
+                // สำเร็จ
+                // ------------------------------------------------
+
+                showMessage(
+                    'บันทึกข้อมูลสำเร็จแล้ว!',
+                    'success'
+                );
+
+
+                form.reset();
+
+
+                // ------------------------------------------------
+                // ตั้งวันที่และเวลาใหม่
+                // ------------------------------------------------
+
+                const nowAfterSubmit =
+                    new Date();
+
+
+                dateInput.value =
+                    getFormattedDate(
+                        nowAfterSubmit
+                    );
+
+
+                dcsOrderTimeInput.value =
+                    getFormattedTime(
+                        nowAfterSubmit
+                    );
+
+
+                dcsStopTimeInput.value =
+                    getFormattedTime(
+                        nowAfterSubmit
+                    );
+
+
+                // ------------------------------------------------
+                // ⭐ ดึงเลขหลังฟีดล่าสุด
+                // มาเป็นเลขก่อนฟีดรอบใหม่
+                // ------------------------------------------------
+
+                fetchLastReadings();
+
+
+                // ------------------------------------------------
+                // โหลดชื่อพนักงานเดิมกลับมา
+                // ------------------------------------------------
+
+                updateDatalist(
+                    recorderEmployeeInput,
+                    LOCAL_STORAGE_KEY_LAST_RECORDER
+                );
+
+
+                updateDatalist(
+                    warehouseEmployeeInput,
+                    LOCAL_STORAGE_KEY_LAST_WAREHOUSE
+                );
+
+
+                updateDatalist(
+                    lsEmployeeCheckInput,
+                    LOCAL_STORAGE_KEY_LAST_LS_CHECK
+                );
+
+
+                updateDatalist(
+                    checkerEmployeeInput,
+                    LOCAL_STORAGE_KEY_LAST_CHECKER
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    'Error submitting form:',
+                    error
+                );
+
+
+                showMessage(
+                    'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' +
+                    error.message +
+                    '. โปรดลองอีกครั้ง.',
+                    'error'
+                );
+
+
+            } finally {
+
+                saveButton.disabled =
+                    false;
+
+                loadingIndicator.classList.add(
+                    'hidden'
+                );
+            }
+
+        }
+    );
+
+});
+
+</script>
+
+</body>
+</html>
