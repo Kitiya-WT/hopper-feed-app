@@ -95,9 +95,7 @@
 
         <form id="hopperFeedForm" class="space-y-6">
 
-            <!-- ==================================================
-                 ข้อมูลการฟีด
-                 ================================================== -->
+            <!-- ข้อมูลการฟีด -->
 
             <div class="container-block">
 
@@ -296,9 +294,7 @@
             </div>
 
 
-            <!-- ==================================================
-                 DCS
-                 ================================================== -->
+            <!-- DCS -->
 
             <div class="container-block">
 
@@ -395,9 +391,7 @@
             </div>
 
 
-            <!-- ==================================================
-                 พนักงาน
-                 ================================================== -->
+            <!-- พนักงาน -->
 
             <div class="container-block">
 
@@ -450,9 +444,7 @@
             </div>
 
 
-            <!-- ==================================================
-                 สถานะ
-                 ================================================== -->
+            <!-- สถานะ -->
 
             <div class="container-block">
 
@@ -516,9 +508,7 @@
             </div>
 
 
-            <!-- ==================================================
-                 ผู้รับรอง
-                 ================================================== -->
+            <!-- ผู้รับรอง -->
 
             <div class="container-block">
 
@@ -575,9 +565,7 @@
             </div>
 
 
-            <!-- ==================================================
-                 ปุ่มบันทึก
-                 ================================================== -->
+            <!-- ปุ่มบันทึก -->
 
             <button
                 type="submit"
@@ -788,12 +776,18 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        let storedEmployees =
-            JSON.parse(
-                localStorage.getItem(
-                    LOCAL_STORAGE_KEY_EMPLOYEES
-                )
-            ) || [];
+        let storedEmployees = [];
+
+        try {
+            storedEmployees =
+                JSON.parse(
+                    localStorage.getItem(
+                        LOCAL_STORAGE_KEY_EMPLOYEES
+                    )
+                ) || [];
+        } catch (error) {
+            storedEmployees = [];
+        }
 
         const allEmployees =
             [
@@ -850,12 +844,18 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        let storedEmployees =
-            JSON.parse(
-                localStorage.getItem(
-                    LOCAL_STORAGE_KEY_EMPLOYEES
-                )
-            ) || [];
+        let storedEmployees = [];
+
+        try {
+            storedEmployees =
+                JSON.parse(
+                    localStorage.getItem(
+                        LOCAL_STORAGE_KEY_EMPLOYEES
+                    )
+                ) || [];
+        } catch (error) {
+            storedEmployees = [];
+        }
 
         if (
             !storedEmployees.includes(
@@ -926,37 +926,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function calculateQuantities() {
 
-        if (
-            !preFeedAInput ||
-            !preFeedBInput ||
-            !postFeedAInput ||
-            !postFeedBInput ||
-            !quantityAInput ||
-            !quantityBInput ||
-            !totalQuantityInput
-        ) {
-            return;
-        }
-
         const preA =
             parseFloat(
                 preFeedAInput.value
-            ) || 0;
+            );
 
         const postA =
             parseFloat(
                 postFeedAInput.value
-            ) || 0;
+            );
 
         const preB =
             parseFloat(
                 preFeedBInput.value
-            ) || 0;
+            );
 
         const postB =
             parseFloat(
                 postFeedBInput.value
-            ) || 0;
+            );
+
+        if (
+            Number.isNaN(preA) ||
+            Number.isNaN(postA) ||
+            Number.isNaN(preB) ||
+            Number.isNaN(postB)
+        ) {
+
+            quantityAInput.value = '';
+            quantityBInput.value = '';
+            totalQuantityInput.value = '';
+
+            return;
+        }
 
         let quantityA = 0;
         let quantityB = 0;
@@ -1009,17 +1011,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // ตั้งค่าวันที่และเวลา
     // ========================================================
 
-    const now =
-        new Date();
+    function setCurrentDateTime() {
 
-    dateInput.value =
-        getFormattedDate(now);
+        const now =
+            new Date();
 
-    dcsOrderTimeInput.value =
-        getFormattedTime(now);
+        dateInput.value =
+            getFormattedDate(now);
 
-    dcsStopTimeInput.value =
-        getFormattedTime(now);
+        dcsOrderTimeInput.value =
+            getFormattedTime(now);
+
+        dcsStopTimeInput.value =
+            getFormattedTime(now);
+    }
+
+
+    setCurrentDateTime();
 
 
     // ========================================================
@@ -1154,22 +1162,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const callbackName =
             'hopperFeedCallback_' +
-            Date.now();
-
-        let finished = false;
+            Date.now() +
+            '_' +
+            Math.floor(
+                Math.random() * 100000
+            );
 
         const script =
             document.createElement('script');
 
+        let finished = false;
 
-        // ====================================================
-        // ล้าง callback / script
-        // ====================================================
+        const timeoutId =
+            setTimeout(
+                function() {
+
+                    if (finished) {
+                        return;
+                    }
+
+                    finished = true;
+
+                    console.error(
+                        'หมดเวลารอ Google Apps Script'
+                    );
+
+                    loadingIndicator.classList.add(
+                        'hidden'
+                    );
+
+                    showMessage(
+                        'Google Sheet ตอบกลับช้า กรุณาลองรีเฟรชหน้าเว็บ',
+                        'error'
+                    );
+
+                    cleanup();
+
+                },
+                15000
+            );
+
 
         function cleanup() {
 
-            loadingIndicator.classList.add(
-                'hidden'
+            clearTimeout(
+                timeoutId
             );
 
             if (
@@ -1186,7 +1223,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 delete window[callbackName];
 
-            } catch (e) {
+            } catch (error) {
 
                 window[callbackName] =
                     undefined;
@@ -1195,7 +1232,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
         // ====================================================
-        // รับข้อมูลจาก Google Apps Script
+        // รับข้อมูล JSONP
         // ====================================================
 
         window[callbackName] =
@@ -1215,6 +1252,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (
                     data &&
+                    data.result === 'success' &&
                     data.preFeedA !== undefined &&
                     data.preFeedB !== undefined
                 ) {
@@ -1238,18 +1276,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 } else {
 
+                    console.error(
+                        'ข้อมูลจาก Google Apps Script ไม่ถูกต้อง:',
+                        data
+                    );
+
                     showMessage(
                         'Google Sheet ไม่ส่งข้อมูลตัวเลขก่อนฟีดกลับมา',
                         'error'
                     );
                 }
 
+                loadingIndicator.classList.add(
+                    'hidden'
+                );
+
                 cleanup();
             };
 
 
         // ====================================================
-        // กรณี Script โหลดไม่ได้
+        // Script โหลดไม่ได้
         // ====================================================
 
         script.onerror =
@@ -1265,6 +1312,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     'ไม่สามารถโหลด Google Apps Script ได้'
                 );
 
+                loadingIndicator.classList.add(
+                    'hidden'
+                );
+
                 showMessage(
                     'ไม่สามารถเชื่อมต่อ Google Apps Script ได้',
                     'error'
@@ -1275,36 +1326,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
         // ====================================================
-        // Timeout 15 วินาที
-        // ====================================================
-
-        setTimeout(
-            function() {
-
-                if (finished) {
-                    return;
-                }
-
-                finished = true;
-
-                console.error(
-                    'หมดเวลารอ Google Apps Script'
-                );
-
-                showMessage(
-                    'Google Sheet ตอบกลับช้า กรุณาลองรีเฟรชหน้าเว็บ',
-                    'error'
-                );
-
-                cleanup();
-
-            },
-            15000
-        );
-
-
-        // ====================================================
-        // สร้าง URL
+        // URL JSONP
         // ====================================================
 
         const requestUrl =
@@ -1350,6 +1372,26 @@ document.addEventListener('DOMContentLoaded', function() {
         async function(event) {
 
             event.preventDefault();
+
+
+            // ต้องมีค่าก่อนฟีดก่อนจึงบันทึกได้
+
+            if (
+                !preFeedAInput.value ||
+                !preFeedBInput.value
+            ) {
+
+                showMessage(
+                    'ยังไม่ได้รับตัวเลขก่อนฟีดจาก Google Sheet กรุณารอสักครู่แล้วลองใหม่',
+                    'error'
+                );
+
+                return;
+            }
+
+
+            calculateQuantities();
+
 
             saveButton.disabled =
                 true;
@@ -1437,7 +1479,7 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
 
                 // ------------------------------------------------
-                // ส่งข้อมูลไป Google Apps Script
+                // ส่งข้อมูล Google Apps Script
                 // ------------------------------------------------
 
                 await fetch(
@@ -1477,38 +1519,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // ตั้งวันที่และเวลาใหม่
                 // ------------------------------------------------
 
-                const nowAfterSubmit =
-                    new Date();
-
-                dateInput.value =
-                    getFormattedDate(
-                        nowAfterSubmit
-                    );
-
-                dcsOrderTimeInput.value =
-                    getFormattedTime(
-                        nowAfterSubmit
-                    );
-
-                dcsStopTimeInput.value =
-                    getFormattedTime(
-                        nowAfterSubmit
-                    );
-
-
-                // ------------------------------------------------
-                // ดึงเลขหลังฟีดล่าสุด
-                // มาเป็นเลขก่อนฟีดรอบใหม่
-                // ------------------------------------------------
-
-                setTimeout(
-                    function() {
-
-                        fetchLastReadings();
-
-                    },
-                    1000
-                );
+                setCurrentDateTime();
 
 
                 // ------------------------------------------------
@@ -1533,6 +1544,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateDatalist(
                     checkerEmployeeInput,
                     LOCAL_STORAGE_KEY_LAST_CHECKER
+                );
+
+
+                // ------------------------------------------------
+                // รอ Google Sheet บันทึก
+                // แล้วดึงเลขล่าสุดมาเป็นเลขก่อนฟีดรอบใหม่
+                // ------------------------------------------------
+
+                setTimeout(
+                    function() {
+
+                        fetchLastReadings();
+
+                    },
+                    1500
                 );
 
 
